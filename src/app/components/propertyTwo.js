@@ -67,7 +67,7 @@ export default function PropertyTwo({jobs}){
                 
                 <div className="col-12 mt-4 pt-2">
                     <div className="text-center">
-                        <Link href="/list" className="mt-3 fs-6 text-primary">Voir plus d&apos;offres <i className="mdi mdi-arrow-right align-middle"></i></Link>
+                        <Link href="/joblist" className="mt-3 fs-6 text-primary">Voir plus d&apos;offres <i className="mdi mdi-arrow-right align-middle"></i></Link>
                     </div>
                 </div>
             </div>
