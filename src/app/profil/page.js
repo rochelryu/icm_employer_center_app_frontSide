@@ -51,21 +51,28 @@ export default function BlogDetail(){
     const [loadedUser, setLoadedUser] = useState(false);
     const [stateCreateJob, setStateCreateJob] = useState(false);
     const [loadingSendSkill, setLoadingSendSkill] = useState(false)
+    const [defaultFileList, setDefaultFileList] = useState([]);
+    const [messageApi, contextMessageHolder] = message.useMessage();
+
 
     useEffect(() => {
         getUser()
       }, []);
 
-    const defaultFileList = user?.resume
-    ? [
-        {
-            uid: '1',
-            name: user.resume,
-            status: 'done',
-            url: `${baseUrl}/uploads/resumes/${user.resume}`,
-        },
-        ]
-    : [];
+
+    useEffect(() => {
+        if (user?.resume) {
+            setDefaultFileList([
+                {
+                    uid: '1',
+                    name: user.resume,
+                    status: 'done',
+                    url: `${baseUrl}/uploads/resumes/${user.resume}`,
+                },
+            ]);
+        }
+    }, [user]);
+
 
 
 
@@ -81,25 +88,36 @@ export default function BlogDetail(){
         beforeUpload(file) {
             const isPdf = file.type === 'application/pdf';
             if (!isPdf) {
-              message.error('Vous ne pouvez télécharger que des fichiers PDF !');
+                messageApi.error('Vous ne pouvez télécharger que des fichiers PDF !');
             }
             return isPdf || Upload.LIST_IGNORE; // Rejette les fichiers non conformes
           },
         onChange(info) {
-          const { status } = info.file;
-          if (status !== 'uploading') {
-            message.loading("Chargement du cv en cours...")
-          }
-          if (status === 'done') {
-            message.success(`${info.file.name} chargé avec succès.`);
-          } else if (status === 'error') {
-            message.error(`${info.file.name} chargement échoué.`);
-          }
+            const { file, fileList: newFileList } = info;
+
+            // Gestion des états de fichier
+            if (file.status === 'done') {
+                messageApi.success(`${file.name} chargé avec succès.`);
+            } else if (file.status === 'error') {
+                messageApi.error(`${file.name} chargement échoué.`);
+            }
+            const lastElementArray = newFileList.slice(-1);
+        
+            // Met à jour la liste locale des fichiers
+            setDefaultFileList(lastElementArray);
         },
         onDrop(e) {
           console.log('Dropped files', e.dataTransfer.files);
         },
-        defaultFileList
+        fileList: defaultFileList,
+        progress: {
+            strokeColor: {
+              '0%': '#108ee9',
+              '100%': '#87d068',
+            },
+            strokeWidth: 3,
+            format: (percent) => percent && `${parseFloat(percent.toFixed(2))}%`,
+          },
       };
 
       const handleChange = (value) => {
@@ -212,7 +230,7 @@ export default function BlogDetail(){
 
     const handleActionCandidate = async (_id, approbation) => {
         try {
-            message.loading("Nous enregistrons votre choix")
+            messageApi.loading("Nous enregistrons votre choix")
             const response = await CandidatureService.validateCandidature({candidatureId: _id, status: approbation ? 'Accepted': 'Rejected'});
                     
                     if (response.etat) {
@@ -291,16 +309,23 @@ export default function BlogDetail(){
         if(skillsAdded.length > 0 && !stateCreateJob) {
             setStateCreateJob(true)
             try {
-                message.loading("Emploie en cours de création")
+                messageApi.loading("Emploie en cours de création")
                 const newJob = await JobOfferService.createJob({...formValues, skills: skillsAdded.join(';')});
                 if(newJob.etat) {
-                    setFormValues(initialForm)
+                    setFormValues({
+                        title: '',
+                        description: null,
+                        location: '',
+                        contractType: null,
+                        salaryRange: '',
+                    
+                    })
                     setSkillsAdded([])
                     handleClearEditor()
                     await getUser()
-                    message.success("Demande emploie en cours de validation par l'administration")
+                    messageApi.success("Demande emploie en cours de validation par l'administration")
                 } else {
-                    message.warning("Une erreur s'est produite")
+                    messageApi.warning("Une erreur s'est produite")
                 }
                 setStateCreateJob(false)
             } catch (error) {
@@ -324,6 +349,7 @@ export default function BlogDetail(){
     return(
         <>
         {contextHolder}
+        {contextMessageHolder}
         <Navbar navClass="defaultscroll sticky" logolight={true} menuClass = "navigation-menu nav-left nav-light"/>
         <section className="bg-half-170 d-table w-100" style={{backgroundImage:"url('/images/bg/02.jpg')"}}>
             <div className="bg-overlay bg-gradient-overlay-2"></div>
@@ -553,7 +579,7 @@ export default function BlogDetail(){
                                                 <div className="col-md-12 col-12 mt-3 mb-3">
                                                     
                                                     <Flex align="center" justify="center">
-                                                    {skillsAdded.length > 0 && formValues.title.length > 3 && formValues.description.length > 20 && formValues.location.length > 2 && formValues.salaryRange.length > 4 && formValues.contractType.length > 2 && <button className={"btn w-100 " + (stateCreateJob ? 'btn-light' : 'btn-primary')} type="button" onClick={handleSumbitJob}> {stateCreateJob ? <Spin /> : 'Enregistrer'}</button>}
+                                                    <button className={"btn w-100 " + (stateCreateJob ? 'btn-light' : 'btn-primary')} type="button" onClick={handleSumbitJob}> {stateCreateJob ? <Spin /> : 'Enregistrer'}</button>
                                                     </Flex>
                                                 </div>
                                             </div>

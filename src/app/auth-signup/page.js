@@ -41,7 +41,9 @@ export default function Signup(){
         if(!loading) {
             try {
                 if(isParticular) {
-                    const values = Object.values(formValues);
+                    const {fullName, email, password, phoneNumber} = formValues
+                    const values = Object.values({fullName, email, password, phoneNumber});
+
                     const validForm = values.filter(value => value.trim().length === 0).length === 0
                     if(validForm) {
                         setLoading(true)
@@ -71,6 +73,7 @@ export default function Signup(){
                 }
             } catch (error) {
                 const {response} = error
+                console.error(error, 'error')
                     setLoading(false)
                 
                     for (const errorMessage of response.data.message) {
@@ -101,7 +104,7 @@ export default function Signup(){
           reader.readAsDataURL(file.originFileObj); // Lecture du fichier en base64
     
           reader.onload = () => {
-            fileInfo.logo = reader.result
+            fileInfo.logo = reader.result.split(',')[1]
             setFormValues({...formValues, ...fileInfo})
           };
         } else {
