@@ -1,9 +1,10 @@
 import axios from 'axios';
 import LocalService from './localStorageService';
+import { baseUrl} from '../constants/serveur/serveur'
 class ApiService {
     constructor(baseURL) {
         this.api = axios.create({
-            baseURL: baseURL || 'https://api.icmemployment.net/api/v1',
+            baseURL: baseURL || `${baseUrl}/api/v1`,
             timeout: 10000, // Temps limite des requêtes
             headers: {
                 'Content-Type': 'application/json',
@@ -55,4 +56,4 @@ class ApiService {
     }
 }
 
-export default new ApiService('https://api.icmemployment.net/api/v1');
+export default new ApiService(`${baseUrl}/api/v1`);

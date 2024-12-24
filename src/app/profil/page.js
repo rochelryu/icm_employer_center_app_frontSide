@@ -21,6 +21,7 @@ import JobOfferService from "../../../services/jobOfferService";
 import CandidatureService from "../../../services/candidatureService";
 import {CANDIDATE, RECRUITER} from "../../../constants/enums/roleEnum";
 import {skillsLocals, contractType} from "../../../constants/skills/skills";
+import {baseUrl} from "../../../constants/serveur/serveur";
 import { useRouter } from 'next/navigation';
 const { Dragger } = Upload;
 const {Text}= Typo
@@ -61,7 +62,7 @@ export default function BlogDetail(){
             uid: '1',
             name: user.resume,
             status: 'done',
-            url: `http://127.0.0.1:8080/uploads/resumes/${user.resume}`,
+            url: `${baseUrl}/uploads/resumes/${user.resume}`,
         },
         ]
     : [];
@@ -73,7 +74,7 @@ export default function BlogDetail(){
         accept: 'application/pdf',
         name: 'cv_file',
         multiple: false,
-        action: 'http://127.0.0.1:8080/api/v1/user/upload-cv',
+        action: `${baseUrl}/api/v1/user/upload-cv`,
         headers: {
             Authorization: LocalService.getToken(), // Récupère le token JWT du localStorage
           },
@@ -159,7 +160,7 @@ export default function BlogDetail(){
             dataIndex: 'resume',
             key: 'resume',
             render: (_, { resume }) => (
-              <Link href={`http://127.0.0.1:8080/uploads/resumes/${resume}`} target='_blank' download>
+              <Link href={`${baseUrl}/uploads/resumes/${resume}`} target='_blank' download>
                 <AssignmentReturnedTwoToneIcon sx={{ color: pink[500] }}  />
               </Link>
             ),
