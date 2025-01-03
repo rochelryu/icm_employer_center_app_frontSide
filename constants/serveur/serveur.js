@@ -1,1 +1,1 @@
-export const baseUrl = "http://127.0.0.1:8080" // "https://api.icmemployment.net"
+export const baseUrl = "https://api.icmemployment.net" // "http://127.0.0.1:8080" // 
