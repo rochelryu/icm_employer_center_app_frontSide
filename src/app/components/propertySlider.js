@@ -57,7 +57,7 @@ export default function ProprtySlider({jobs}){
                                                 
                                             </div>
                                             <div className="card-body content p-4">
-                                                <Link href={`/property-detail/${item.id}`} className="title fs-5 text-dark fw-medium">{item.title}</Link>
+                                                <Link href={`/job/${item._id}`} className="title fs-5 text-dark fw-medium">{item.title}</Link>
                 
                                                 <ul className="list-unstyled mt-3 py-3 border-top border-bottom d-flex align-items-center justify-content-between">
                                                     <li className="d-flex align-items-center me-3">
