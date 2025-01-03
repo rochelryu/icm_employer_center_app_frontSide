@@ -15,6 +15,7 @@ import CandidatureService from "../../../../services/candidatureService";
 import { horodatage } from "../../../../utils/date/horodatage";
 import { displayStatus } from "../../../../utils/helpers/status";
 import { Tag, Spin, notification } from 'antd';
+import { Box } from '@mui/material'
 
 import { useRouter } from 'next/navigation';
 
@@ -121,9 +122,13 @@ export default function Job(){
                     <div className="col-lg-8 col-md-7 col-12">
                         <div className="section-title">
                             <h4 className="title mb-0">{jobInfo?.title}</h4>
-                            
 
-                            <p className="text-muted">{jobInfo?.description}</p>
+
+                            <div dangerouslySetInnerHTML={{ __html: jobInfo?.description }} />
+                            {/* <Box component='div'>
+                                {jobInfo?.description}
+                            </Box> */}
+
 
                             {jobInfo && jobInfo.skills.map(skill => <Link key={skill.trim()} href="#" className="badge badge-link bg-primary ms-1">{skill.trim()}</Link>)}
                                 
