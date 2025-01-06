@@ -10,7 +10,7 @@ class UserService {
             const response = await apiService.get(this.baseURL);
             const {data} = response;
             if(data.etat) {
-                const {access_token, company, candidatures, jobs, ...rest} = data.result.client;
+                const {access_token, company, candidatures, jobs, trainings, ...rest} = data.result.client;
                 LocalService.saveToken(access_token)
                 LocalService.saveUser(rest)
             }

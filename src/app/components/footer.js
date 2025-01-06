@@ -25,7 +25,7 @@ export default function Footer(){
                                         <li className="list-inline-item"><Link href="#" target="_blank" className="rounded-3"><FiFacebook className="fea icon-sm align-middle"/></Link></li>
                                         <li className="list-inline-item"><Link href="#" target="_blank" className="rounded-3"><FiInstagram className="fea icon-sm align-middle"/></Link></li>
                                         <li className="list-inline-item"><Link href="#" target="_blank" className="rounded-3"><FiTwitter className="fea icon-sm align-middle"/></Link></li>
-                                        <li className="list-inline-item"><Link href="mailto:support@exemple.com" className="rounded-3"><FiMail className="fea icon-sm align-middle"/></Link></li>
+                                        <li className="list-inline-item"><Link href="mailto:info@icmemployment.net" className="rounded-3"><FiMail className="fea icon-sm align-middle"/></Link></li>
                                     </ul>
                                 </div>
                                 

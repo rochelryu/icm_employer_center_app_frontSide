@@ -15,9 +15,9 @@ class TrainingService {
         }
     }
 
-    static async createParticipation({title, description, location, contractType, salaryRange, skills}) {
+    static async createParticipation({trainingId}) {
             try {
-                const response = await apiService.post(this.baseURL, {title, description, location, contractType, salaryRange, skills});
+                const response = await apiService.put(this.baseURL, {trainingId});
                 return response.data;
             } catch (error) {
                 throw error; // Laisser l'erreur remonter

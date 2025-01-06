@@ -475,7 +475,7 @@ export default function BlogDetail(){
                                                             <div className="flex-1 ms-3">
                                                                 <h6 className="d-block title text-dark fw-medium">{candidature.jobOffer.title}</h6>
                                                                 <span className="text-muted small">{horodatage(candidature.created_at)}</span>
-                                                                <Tag color={displayStatus(candidature.status)[1]}>{displayStatus(candidature.status)[0]}</Tag>
+                                                                <Tag style={{marginLeft: 5}} color={displayStatus(candidature.status)[1]}>{displayStatus(candidature.status)[0]}</Tag>
                                                             </div>
                                                         </div>
                                                     </Link>
