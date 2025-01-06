@@ -1,1 +1,2 @@
-export const baseUrl = "https://api.icmemployment.net" // "http://127.0.0.1:8080" // 
+export const baseUrl = "https://api.icmemployment.net"
+export const baseUrlAssetFormations = "https://api.icmemployment.net/uploads/formations"

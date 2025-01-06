@@ -172,7 +172,7 @@ export default function Navbar({navClass,logolight,menuClass}){
                         
                         <li><Link href="/" className="sub-menu-item">Accueil</Link></li>
                         
-                        <li><Link href="/joblist" className="sub-menu-item">Offres emploies</Link></li>
+                        <li><Link href="/joblist" className="sub-menu-item">Offres emplois</Link></li>
                         <li><Link href="/formations" className="sub-menu-item">Formations</Link></li>
         
                         {/* <li className="has-submenu parent-parent-menu-item">

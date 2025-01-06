@@ -9,6 +9,9 @@ const nextConfig = {
   sassOptions: {
     includePaths: [path.join(__dirname, 'styles')],
   },
+  images: {
+    domains: ['api.icmemployment.net', 'localhost'], // Ajoutez le domaine ici
+  },
   webpack(config) {
     config.module.rules.forEach((rule) => {
       const { oneOf } = rule;

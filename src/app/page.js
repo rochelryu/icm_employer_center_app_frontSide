@@ -3,7 +3,7 @@ import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 
-import VideoOne from "./components/modalVideo/videoOne";
+// import VideoOne from "./components/modalVideo/videoOne";
 import Counter from "./components/counter/counter";
 import Navbar from "./components/navbar";
 import Footer from "./components/footer";
@@ -79,11 +79,11 @@ export default function IndexSix(){
                             <div className="position-relative shadow p-2 rounded-top-pill rounded-5 bg-white img-one">
                                 <Image src='/images/hero.jpg' width={0} height={0} sizes="100vw" style={{width:'100%', height:'auto'}} className="img-fluid rounded-top-pill rounded-5" alt=""/>
     
-                                <VideoOne/>
+                                {/* <VideoOne/> */}
 
-                                <div className="position-absolute top-0 start-0 z-n1">
+                                {/* <div className="position-absolute top-0 start-0 z-n1">
                                     <Image src="/images/svg/dots.svg" width={0} height={0} sizes="100vw" style={{width:'100%', height:'auto'}} className="avatar avatar-xl-large" alt=""/>
-                                </div>
+                                </div> */}
                             </div>
 
                             <div className="img-two shadow rounded-3 overflow-hidden p-2 bg-white">
@@ -96,10 +96,10 @@ export default function IndexSix(){
                         <div className="section-title ms-lg-5">
                             <h6 className="text-primary fw-medium mb-2">Les meilleurs programmes & formations</h6>
                             <h4 className="title mb-3">Venez apprendre avec nos professionnel du metier,<br/> monter rapidement en expérience</h4>
-                            <p className="text-muted para-desc mb-0">+400 vidéos formations</p>
+                            <p className="text-muted para-desc mb-0">+400 formations</p>
                         
                             <div className="mt-4">
-                                <Link href="/aboutus" className="btn btn-pills btn-primary">En savoir plus <i className="mdi mdi-arrow-right align-middle"></i></Link>
+                                <Link href="/formations" className="btn btn-pills btn-primary">En savoir plus <i className="mdi mdi-arrow-right align-middle"></i></Link>
                             </div>
                         </div>
                     </div>

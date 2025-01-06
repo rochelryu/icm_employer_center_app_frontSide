@@ -15,7 +15,8 @@ import CandidatureService from "../../../../services/candidatureService";
 import { horodatage } from "../../../../utils/date/horodatage";
 import { displayStatus } from "../../../../utils/helpers/status";
 import { Tag, Spin, notification } from 'antd';
-import { Box } from '@mui/material'
+import DOMPurify from 'dompurify';
+
 
 import { useRouter } from 'next/navigation';
 
@@ -124,7 +125,7 @@ export default function Job(){
                             <h4 className="title mb-0">{jobInfo?.title}</h4>
 
 
-                            <div dangerouslySetInnerHTML={{ __html: jobInfo?.description }} />
+                            <div dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(jobInfo?.description) }} />
                             {/* <Box component='div'>
                                 {jobInfo?.description}
                             </Box> */}
@@ -185,7 +186,7 @@ export default function Job(){
                 <div className="row justify-content-center">
                     <div className="col">
                         <div className="section-title text-center mb-4 pb-2">
-                            <h4 className="title mb-3">Autre emploie</h4>
+                            <h4 className="title mb-3">Autre emploi</h4>
                         </div>
                     </div>
                 </div>

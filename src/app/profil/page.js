@@ -158,7 +158,7 @@ export default function BlogDetail(){
           ),
         },
         {
-          title: 'Compétence',
+          title: 'Compétences',
           key: 'skills',
           dataIndex: 'skills',
           render: (_, { skills }) => (
@@ -309,7 +309,7 @@ export default function BlogDetail(){
         if(skillsAdded.length > 0 && !stateCreateJob) {
             setStateCreateJob(true)
             try {
-                messageApi.loading("Emploie en cours de création")
+                messageApi.loading("emploi en cours de création")
                 const newJob = await JobOfferService.createJob({...formValues, skills: skillsAdded.join(';')});
                 if(newJob.etat) {
                     setFormValues({
@@ -323,7 +323,7 @@ export default function BlogDetail(){
                     setSkillsAdded([])
                     handleClearEditor()
                     await getUser()
-                    messageApi.success("Demande emploie en cours de validation par l'administration")
+                    messageApi.success("Demande emploi en cours de validation par l'administration")
                 } else {
                     messageApi.warning("Une erreur s'est produite")
                 }
@@ -515,7 +515,7 @@ export default function BlogDetail(){
                                 <div className="card border-0 shadow rounded-3 overflow-hidden">
                                     <div className="card-title">
                                             <Typography variant="h3" className="text-center title fs-5 text-dark fw-medium" sx={{m: 2}}>
-                                                Création d'offre d'emploie
+                                                Création d'offre d'emploi
                                             </Typography>
                                         </div>
                                     

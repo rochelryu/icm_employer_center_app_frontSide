@@ -9,3 +9,7 @@ export const horodatage = (date) => {
         return format(date, 'dd-MM-yyyy', { locale: fr });
     }
 }
+
+export const formatDate = (date) => {
+    return format(date, 'dd-MM-yyyy', { locale: fr });
+}
