@@ -10,8 +10,7 @@ import Footer from "../../components/footer";
 import ScrollTop from "../../components/scrollTop";
 import ProprtyFormation from "../../components/propertyFormation";
 import TrainingService from "../../../../services/trainingService";
-import CandidatureService from "../../../../services/candidatureService";
-import { horodatage } from "../../../../utils/date/horodatage";
+import { formatDate } from "../../../../utils/date/horodatage";
 import {baseUrlAssetFormations} from "../../../../constants/serveur/serveur";
 
 import { Tag, Spin, notification } from 'antd';
@@ -173,11 +172,11 @@ export default function DetailFormation(){
 
                                 <div className="d-flex align-items-center justify-content-between mt-2">
                                     <span className="small text-muted">Date de début</span>
-                                    <span className="small">{formationInfo && horodatage(new Date(formationInfo?.startDate))}</span>
+                                    <span className="small">{formationInfo && formatDate(new Date(formationInfo?.startDate))}</span>
                                 </div>
                                 <div className="d-flex align-items-center justify-content-between mt-2">
                                     <span className="small text-muted">Date de fin</span>
-                                    <span className="small">{formationInfo && horodatage(new Date(formationInfo?.endDate))}</span>
+                                    <span className="small">{formationInfo && formatDate(new Date(formationInfo?.endDate))}</span>
                                 </div>
                             </div>
 
