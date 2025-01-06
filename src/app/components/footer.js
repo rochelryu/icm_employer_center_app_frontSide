@@ -31,7 +31,7 @@ export default function Footer(){
                                 
                                 
                                 
-                                <div className="col-lg-2 col-md-4 col-12 mt-4 mt-sm-0 pt-2 pt-sm-0">
+                                {/* <div className="col-lg-2 col-md-4 col-12 mt-4 mt-sm-0 pt-2 pt-sm-0">
                                     <h5 className="footer-head">Liens utiles</h5>
                                     <ul className="list-unstyled footer-list mt-4">
                                         <li><Link href="#" className="text-foot"><i className="mdi mdi-chevron-right align-middle me-1"></i> Terms of Services</Link></li>
@@ -39,22 +39,22 @@ export default function Footer(){
                                         <li><Link href="#" className="text-foot"><i className="mdi mdi-chevron-right align-middle me-1"></i> Listing</Link></li>
                                         <li><Link href="#" className="text-foot"><i className="mdi mdi-chevron-right align-middle me-1"></i> Contact us</Link></li>
                                     </ul>
-                                </div>
+                                </div> */}
             
                                 <div className="col-lg-3 col-md-4 col-12 mt-4 mt-sm-0 pt-2 pt-sm-0">
-                                    <h5 className="footer-head">Contact Details</h5>
+                                    <h5 className="footer-head">Contact Detail</h5>
 
                                     <div className="d-flex mt-4">
                                         <FiMapPin className="fea icon-sm text-primary mt-1 me-3"/>
                                         <div className="">
-                                            <p className="mb-2">Cocody rivera palmeraie, <br/> Carrefour SODECI, <br/> RUE 485</p>
-                                            <Link href="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d31778.379988833607!2d-3.975885844780568!3d5.371522054861138!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0xfc1eccc27a4e1c9%3A0xf9cd42ec877924f6!2sRivi%C3%A9ra%20Palmeraie%2C%20Abidjan!5e0!3m2!1sfr!2sci!4v1735911810256!5m2!1sfr!2sci" data-type="iframe" className="text-primary lightbox">Voir sur Google map</Link>
+                                            <p className="mb-2">Vridi Zone portuaire, <br/> Rue de la métalurgie, 1125</p>
+                                            <Link target='_blank' href="https://maps.app.goo.gl/X1wnxmmseucJvV8D6" className="text-primary lightbox">Voir sur Google map</Link>
                                         </div>
                                     </div>
         
                                     <div className="d-flex mt-4">
                                         <FiMail className="fea icon-sm text-primary mt-1 me-3"/>
-                                        <Link href="mailto:contact@example.com" className="text-foot">contact@example.com</Link>
+                                        <Link href="mailto:info@icmemployment.net" className="text-foot">info@icmemployment.net</Link>
                                     </div>
                                     
                                     <div className="d-flex mt-4">
@@ -73,7 +73,7 @@ export default function Footer(){
                     <div className="row">
                         <div className="col">
                             <div className="text-center">
-                                <p className="mb-0">© {new Date().getFullYear()} KOCEN. </p>
+                                <p className="mb-0">© {new Date().getFullYear()} TIICMANIA. </p>
                             </div>
                         </div>
                     </div>

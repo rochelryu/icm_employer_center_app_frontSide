@@ -10,7 +10,20 @@ const nextConfig = {
     includePaths: [path.join(__dirname, 'styles')],
   },
   images: {
-    domains: ['api.icmemployment.net', 'localhost'], // Ajoutez le domaine ici
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'api.icmemployment.net',
+        port: '', // Laissez vide si le port par défaut (443 pour HTTPS) est utilisé
+        pathname: '/uploads/**', // Correspond aux chemins des images
+      },
+      {
+        protocol: 'http',
+        hostname: 'localhost',
+        port: '3000', // Laissez vide si le port par défaut (443 pour HTTPS) est utilisé
+        pathname: '/uploads/**', // Correspond aux chemins des images
+      },
+    ],
   },
   webpack(config) {
     config.module.rules.forEach((rule) => {

@@ -118,7 +118,7 @@ export default function ContactUs(){
                             <div className="mt-4">
                                 <h5 className="mb-3">Email</h5>
                                 <p className="text-muted">Disponible du lundi au vendredi de 09h à 17H</p>
-                                <Link href="mailto:contact@example.com" className="text-primary">contact@example.com</Link>
+                                <Link href="mailto:info@icmemployment.net" className="text-primary">info@icmemployment.net</Link>
                             </div>
                         </div>
                     </div>
@@ -134,8 +134,8 @@ export default function ContactUs(){
     
                             <div className="mt-4">
                                 <h5 className="mb-3">Localisation</h5>
-                                <p className="text-muted">Cocody rivera palmeraie, Carrefour SODECI, <br/>RUE 485</p>
-                                <Link href="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d31778.379988833607!2d-3.975885844780568!3d5.371522054861138!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0xfc1eccc27a4e1c9%3A0xf9cd42ec877924f6!2sRivi%C3%A9ra%20Palmeraie%2C%20Abidjan!5e0!3m2!1sfr!2sci!4v1735911810256!5m2!1sfr!2sci"  className="lightbox text-primary" data-type="iframe" data-group="iframe" data-width="1024px" data-height="576px">Voir sur Google map</Link>
+                                <p className="text-muted">Vridi Zone portuaire, <br/> Rue de la métalurgie, 1125</p>
+                                <Link href="https://maps.app.goo.gl/X1wnxmmseucJvV8D6" target='_blank' className="lightbox text-primary" >Voir sur Google map</Link>
                             </div>
                         </div>
                     </div>
@@ -147,7 +147,7 @@ export default function ContactUs(){
                     <div className="col-12 p-0">
                         <div className="card map border-0">
                             <div className="card-body p-0">
-                                <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d31778.379988833607!2d-3.975885844780568!3d5.371522054861138!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0xfc1eccc27a4e1c9%3A0xf9cd42ec877924f6!2sRivi%C3%A9ra%20Palmeraie%2C%20Abidjan!5e0!3m2!1sfr!2sci!4v1735911810256!5m2!1sfr!2sci" style={{border:"0" }} title="icm" allowFullScreen></iframe>
+                                <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d24339.588484191605!2d-4.005242006824407!3d5.260966815674043!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0xfc1e8434f6ae46d%3A0xb854a6486b1947d9!2sVridi%2C%20Abidjan!5e0!3m2!1sfr!2sci!4v1736141428409!5m2!1sfr!2sci" style={{border:"0" }} title="icm" allowFullScreen></iframe>
                             </div>
                         </div>
                     </div>
