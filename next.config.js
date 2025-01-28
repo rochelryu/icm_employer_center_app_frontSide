@@ -23,6 +23,12 @@ const nextConfig = {
         port: '3000', // Laissez vide si le port par défaut (443 pour HTTPS) est utilisé
         pathname: '/uploads/**', // Correspond aux chemins des images
       },
+      {
+        protocol: 'http',
+        hostname: '127.0.0.1',
+        port: '8080', // Laissez vide si le port par défaut (443 pour HTTPS) est utilisé
+        pathname: '/uploads/**', // Correspond aux chemins des images
+      },
     ],
   },
   webpack(config) {

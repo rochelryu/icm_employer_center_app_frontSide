@@ -3,6 +3,7 @@ import Link from "next/link";
 import Image from "next/image";
 
 import { horodatage } from "../../../utils/date/horodatage";
+import {baseUrlAssetLogos} from "../../../constants/serveur/serveur";
 
 export default function PropertyTwo({jobs}){
     return(
@@ -26,7 +27,7 @@ export default function PropertyTwo({jobs}){
                                 <div className="card property property-list border-0 shadow position-relative overflow-hidden rounded-3">
                                     <div className="d-md-flex">
                                         <div className="property-image position-relative overflow-hidden shadow flex-md-shrink-0 rounded-3 m-2">
-                                            <Image src={'/images/property/offre.jpg'} width={0} height={0} sizes="100vw" style={{width:'100%', height:'auto'}} className="img-fluid h-100 w-100" alt=""/>
+                                            <Image src={`${baseUrlAssetLogos}/${item.cover}`} width={0} height={0} sizes="100vw" style={{width:'100%', height:'auto'}} className="img-fluid h-100 w-100" alt=""/>
                                             
                                         </div>
                                         <div className="card-body content p-3">

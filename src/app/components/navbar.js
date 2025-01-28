@@ -5,6 +5,7 @@ import Image from "next/image";
 import { Tooltip } from 'antd'
 import {FiSearch,FiUser} from '../assets/icons/vander'
 import LocalService from "../../../services/localStorageService";
+import UserService from "../../../services/userService";
 
 export default function Navbar({navClass,logolight,menuClass}){
     const [scroll, setScroll] = useState(false);
@@ -26,10 +27,11 @@ export default function Navbar({navClass,logolight,menuClass}){
         window.scrollTo(0, 0);
       }, []);
 
-        const getUser = () => {
+        const getUser = async () => {
             const userInfo = LocalService.getUser()
             setUser(userInfo)
             setLoadedUser(true)
+            await UserService.addVisite(); 
         }
 
         const toggleMenu = () => {

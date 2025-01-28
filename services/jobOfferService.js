@@ -15,19 +15,19 @@ class JobOfferService {
         }
     }
 
-    static async createJob({title, description, location, contractType, salaryRange, skills}) {
+    static async createJob({title, description, location, contractType, salaryRange, skills, onShore}) {
             try {
-                const response = await apiService.post(this.baseURL, {title, description, location, contractType, salaryRange, skills});
+                const response = await apiService.post(this.baseURL, {title, description, location, contractType, salaryRange, skills, onShore});
                 return response.data;
             } catch (error) {
                 throw error; // Laisser l'erreur remonter
             }
         }
 
-    static async getDetailsJob({_id, authenticate}) {
+    static async getDetailsJob({_id, authenticate, overview}) {
         try {
             const authUrl = authenticate ? '/authenticate' : ''
-            const response = await apiService.get(`${this.baseURL}/${_id}${authUrl}`);
+            const response = await apiService.get(`${this.baseURL}/${_id}${authUrl}?overview=${overview}`);
             return response.data;
         } catch (error) {
             throw error; // Laisser l'erreur remonter
@@ -37,6 +37,24 @@ class JobOfferService {
     static async getMyJob() {
         try {
             const response = await apiService.get(`${this.baseURL}/myJobs`);
+            return response.data;
+        } catch (error) {
+            throw error; // Laisser l'erreur remonter
+        }
+    }
+
+    static async getAllDomaine() {
+        try {
+            const response = await apiService.get(`${this.baseURL}/domaine`);
+            return response.data;
+        } catch (error) {
+            throw error; // Laisser l'erreur remonter
+        }
+    }
+
+    static async getAllCertifications() {
+        try {
+            const response = await apiService.get(`${this.baseURL}/certification`);
             return response.data;
         } catch (error) {
             throw error; // Laisser l'erreur remonter

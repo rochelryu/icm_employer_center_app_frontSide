@@ -35,9 +35,9 @@ class UserService {
         }
     }
 
-    static async signup({email, password, fullName, phoneNumber, role}) {
+    static async signup({email, password, fullName, phoneNumber, role, logo, logoName}) {
         try {
-            const response = await apiService.post(`${this.baseURL}/signup`, {email, password, fullName, phoneNumber, role});
+            const response = await apiService.post(`${this.baseURL}/signup`, {email, password, fullName, phoneNumber, role, logo, logoName});
             const {data} = response;
             if(data.etat) {
                 const {access_token, company, ...rest} = data.result.client;
@@ -62,6 +62,17 @@ class UserService {
             return data;
         } catch (error) {
             throw error;
+        }
+    }
+
+    static async addVisite() {
+        try {
+            const response = await apiService.get(`${this.baseURL}/visite`);
+            const {data} = response;
+    
+            return data;
+        } catch (error) {
+            throw error; // Laisser l'erreur remonter
         }
     }
 }

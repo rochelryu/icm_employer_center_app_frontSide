@@ -37,7 +37,7 @@ export default function IndexSix(){
         <section className="position-relative mt-5 pt-4">
             <div className="container-fluid px-lg-5 px-2 mt-2">
                 <div className="bg-half-260 d-table w-100 shadow rounded-3 overflow-hidden" id="home">
-                    <div className="bg-overlay" style={{backgroundImage:"url('/images/bg/03.jpg')", backgroundPosition:'top', backgroundRepeat:'no-repeat', backgroundAttachment:'fixed'}} id="hero-images"></div>
+                    <div className="bg-overlay" style={{backgroundImage:"url('/images/bg/icm.jpg')", backgroundPosition:'top', backgroundRepeat:'no-repeat', backgroundAttachment:'fixed'}} id="hero-images"></div>
                     <div className="bg-overlay bg-black opacity-50"></div>
 
                     <div className="container">

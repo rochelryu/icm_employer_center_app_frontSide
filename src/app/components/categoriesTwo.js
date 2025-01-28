@@ -15,21 +15,21 @@ export default function CategoriesTwo({jobs}){
             name:'CDD',
             listings:`${jobs.filter(job => job.contractType === 'CDD').length} Disponibles`
         },
-        {
-            image:'/images/property/Freelance.jpg',
-            name:'Freelance',
-            listings:`${jobs.filter(job => job.contractType === 'Freelance').length} Disponibles`
-        },
+        // {
+        //     image:'/images/property/Freelance.jpg',
+        //     name:'Freelance',
+        //     listings:`${jobs.filter(job => job.contractType === 'Freelance').length} Disponibles`
+        // },
         {
             image:'/images/property/stage.jpg',
-            name:'Stage',
-            listings:`${jobs.filter(job => job.contractType === 'Stage').length} Disponibles`
+            name:'Intérim',
+            listings:`${jobs.filter(job => job.contractType === 'Intérim').length} Disponibles`
         },
-        {
-            image:'/images/property/sous-traitance.jpg',
-            name:'Sous-traitance',
-            listings:`${jobs.filter(job => job.contractType === 'Sous-traitance').length} Disponibles`
-        },
+        // {
+        //     image:'/images/property/sous-traitance.jpg',
+        //     name:'Sous-traitance',
+        //     listings:`${jobs.filter(job => job.contractType === 'Sous-traitance').length} Disponibles`
+        // },
     ]
     return(
         <>

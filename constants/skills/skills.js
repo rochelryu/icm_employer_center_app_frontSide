@@ -47,7 +47,7 @@ export const skillsLocals = [
 ]
 
 export const domainesActivites = [
-  { label: "technologie", value: "technologie" },
+  { label: "Technologie", value: "Technologie" },
   { label: "finance", value: "finance" },
   { label: "santé", value: "santé" },
   { label: "éducation", value: "éducation" },
@@ -78,7 +78,43 @@ export const domainesActivites = [
 export const contractType = [
   { label: "CDI", value: "CDI" },
   { label: "CDD", value: "CDD" },
-  { label: "Stage", value: "Stage" },
-  { label: "Freelance", value: "Freelance" },
-  { label: "Sous-traitance", value: "Sous-traitance" },
+  { label: "Intérim", value: "Intérim" },
 ]
+
+export const degreeAccademy = [
+  { label: "CEPE", value: "CEPE:0" },
+  { label: "BEPC", value: "BEPC:1" },
+  { label: "BAC", value: "BAC:2" },
+  { label: "BAC+1", value: "BAC+1:3" },
+  { label: "BAC+2", value: "BAC+2:4" },
+  { label: "BAC+3", value: "BAC+3:5" },
+  { label: "BAC+4", value: "BAC+4:6" },
+  { label: "BAC+5", value: "BAC+5:7" },
+  { label: "BAC+6", value: "BAC+6:8" },
+  { label: "DOCTORAT", value: "DOCTORAT:9" },
+]
+
+export const certificationsLocal = [
+  { label: "Certified Scrum Master (CSM)", value: "Certified Scrum Master (CSM)" },
+  { label: "Project Management Professional (PMP)", value: "Project Management Professional (PMP)" },
+  { label: "Cisco Certified Network Associate (CCNA)", value: "Cisco Certified Network Associate (CCNA)" },
+  { label: "AWS Certified Solutions Architect", value: "AWS Certified Solutions Architect" },
+  { label: "Microsoft Certified: Azure Fundamentals", value: "Microsoft Certified: Azure Fundamentals" },
+  { label: "Google Data Analytics Professional Certificate", value: "Google Data Analytics Professional Certificate" },
+  { label: "CompTIA Security+", value: "CompTIA Security+" },
+  { label: "Certified Ethical Hacker (CEH)", value: "Certified Ethical Hacker (CEH)" },
+  { label: "ITIL Foundation Certification", value: "ITIL Foundation Certification" },
+  { label: "SAP Certified Application Associate", value: "SAP Certified Application Associate" },
+  { label: "Adobe Certified Expert (ACE)", value: "Adobe Certified Expert (ACE)" },
+  { label: "Chartered Financial Analyst (CFA)", value: "Chartered Financial Analyst (CFA)" },
+  { label: "Google Ads Certification", value: "Google Ads Certification" },
+  { label: "Six Sigma Green Belt Certification", value: "Six Sigma Green Belt Certification" },
+  { label: "CISSP - Certified Information Systems Security Professional", value: "CISSP - Certified Information Systems Security Professional" },
+  { label: "Certified Public Accountant (CPA)", value: "Certified Public Accountant (CPA)" },
+  { label: "Hootsuite Social Marketing Certification", value: "Hootsuite Social Marketing Certification" },
+  { label: "TOEFL Certification", value: "TOEFL Certification" },
+  { label: "IELTS Certification", value: "IELTS Certification" },
+  { label: "AutoDesk Certified Professional", value: "AutoDesk Certified Professional" },
+];
+
+

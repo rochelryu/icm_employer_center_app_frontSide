@@ -15,13 +15,13 @@ import DoDisturbOffTwoToneIcon from '@mui/icons-material/DoDisturbOffTwoTone';
 import MoreHorizIcon from '@mui/icons-material/MoreHoriz'
 import LocalService from "../../../services/localStorageService";
 import { InboxOutlined } from '@ant-design/icons';
-import { Button, message, Upload, Select, Spin, Tag, Space, Table, Typography as Typo, Menu, Flex, Dropdown, Divider, notification, Badge } from 'antd';
+import { Button, message, Upload, Select, Spin, Tag, Space, Table, Typography as Typo, Menu, Flex, Dropdown, Divider, notification, Badge, Avatar, Radio } from 'antd';
 import UserService from "../../../services/userService";
 import JobOfferService from "../../../services/jobOfferService";
 import CandidatureService from "../../../services/candidatureService";
 import {CANDIDATE, RECRUITER} from "../../../constants/enums/roleEnum";
-import {skillsLocals, contractType} from "../../../constants/skills/skills";
-import {baseUrl} from "../../../constants/serveur/serveur";
+import {skillsLocals, contractType, degreeAccademy, certificationsLocal} from "../../../constants/skills/skills";
+import {baseUrl, baseUrlAssetLogos} from "../../../constants/serveur/serveur";
 import { useRouter } from 'next/navigation';
 const { Dragger } = Upload;
 const {Text}= Typo
@@ -37,8 +37,20 @@ const initialForm = {
     location: '',
     contractType: null,
     salaryRange: '',
+    onShore: false
 
 }
+
+const optionsAvailableOffShore = [
+    {
+      label: 'Oui',
+      value: true,
+    },
+    {
+      label: 'Non',
+      value: false,
+    },
+  ];
 
 export default function BlogDetail(){
     const editorRef = useRef(null);
@@ -46,11 +58,23 @@ export default function BlogDetail(){
     const router = useRouter();
     const [formValues, setFormValues] = useState(initialForm);
     const [user, setUser] = useState(null);
-    const [skillsAdded, setSkillsAdded] = useState([]);
+    const [availableOffShore, setAvailableOffShore] = useState(null);
+    const [domainesAdded, setDomainesAdded] = useState([]);
+    const [degree, setDegree] = useState([]);
+    const [certificationsAdded, setCertificationsAdded] = useState([]);
+    const [certificationsOnShoreAdded, setCertificationsOnShoreAdded] = useState([]);
+    const [otherCompetencesAdded, setOtherCompetencesAdded] = useState([]);
     const [jobs, setJobs] = useState([]);
+    const [domaines, setDomaines] = useState([]);
+    const [certifications, setCertifications] = useState([]);
     const [loadedUser, setLoadedUser] = useState(false);
+    const [yearsExperience, setYearsExperience] = useState('');
     const [stateCreateJob, setStateCreateJob] = useState(false);
-    const [loadingSendSkill, setLoadingSendSkill] = useState(false)
+    const [isEditDomaine, setIsEditDomaine] = useState(false);
+    const [isEditDegree, setIsEditDegree] = useState(false);
+    const [isEditYearExperience, setIsEditYearExperience] = useState(false);
+    const [loadingSendOtherCompetence, setLoadingSendOtherCompetence] = useState(false);
+    const [loadingSendSkill, setLoadingSendSkill] = useState(false);
     const [defaultFileList, setDefaultFileList] = useState([]);
     const [messageApi, contextMessageHolder] = message.useMessage();
 
@@ -120,8 +144,20 @@ export default function BlogDetail(){
           },
       };
 
-      const handleChange = (value) => {
-        setSkillsAdded(value)
+      const handleChangeDomaine = (value) => {
+        setDomainesAdded(value)
+      };
+      const handleChangeOtherCompetences = (value) => {
+        setOtherCompetencesAdded(value)
+      };
+      const handleChangeCertificationOffShore = (value) => {
+        setCertificationsAdded(value)
+      };
+      const handleChangeCertificationOnShore = (value) => {
+        setCertificationsOnShoreAdded(value)
+      };
+      const handleChangeDegreeAccademy = (value) => {
+        setDegree(value)
       };
 
       const handleClearEditor = () => {
@@ -261,8 +297,14 @@ export default function BlogDetail(){
             setLoadedUser(userInfo.role === CANDIDATE)
             try {
                 const userOnline = await UserService.getInfoUser();
+                const domainesInfo = await JobOfferService.getAllDomaine();
+                const certificationsInfo = await JobOfferService.getAllCertifications();
                 if(userOnline.etat) {
                     const {access_token, ...rest} = userOnline.result.client;
+                    const domainesFilter = domainesInfo.result.map(domaine => ({label: domaine.title, value: domaine.title}));
+                    const certificationsFilter = certificationsInfo.result.map(domaine => ({label: domaine.title, value: domaine.title}));
+                    setDomaines(domainesFilter);
+                    setCertifications(certificationsFilter);
                     setUser(rest)
                     setLoadedUser(true)
                     if(rest.role === RECRUITER) {
@@ -271,6 +313,13 @@ export default function BlogDetail(){
                             setJobs(allJobs.result)
                         }
                     }
+                    if(rest.domainsActivity.length === 0) {
+                        setIsEditDomaine(true);
+                    }
+                    if(!rest.levelGruaduate) {
+                        setIsEditDegree(true);
+                    }
+                    setAvailableOffShore(rest.onShore);
                 }
             } catch (error) {
                 LocalService.clear()
@@ -280,22 +329,158 @@ export default function BlogDetail(){
         
     }
 
-    const handleSumbitSkill = async (e) => {
+    const handleSumbitDomaines = async (e) => {
         e.preventDefault()
-        if(skillsAdded.length > 0 && !loadingSendSkill) {
+        if(domainesAdded.length > 0 && !loadingSendSkill) {
             setLoadingSendSkill(true)
             try {
-                const userOnline = await UserService.updateUser({skills: skillsAdded});
+                const userOnline = await UserService.updateUser({domainsActivity: domainesAdded});
                 if(userOnline.etat) {
                     const {access_token, ...rest} = userOnline.result.client;
-                    setUser(rest)
+                    setUser(rest);
                     
-                    setLoadingSendSkill(false)
-                    setSkillsAdded([])
+                    setLoadingSendSkill(false);
+                    setDomainesAdded([]);
+                    if(rest.domainsActivity.length > 0) {
+                        setIsEditDomaine(false);
+                    }
                 }
             } catch (error) {
                 const {response} = error
-                setStateCreateJob(false)
+                
+                for (const errorMessage of response.data.message) {
+                    openNotificationWithIcon({type: 'error', message: 'Echec', description: errorMessage })
+                }
+            }
+        }
+    }
+
+    const handleSumbitSkill = async (e) => {
+        e.preventDefault()
+        if(otherCompetencesAdded.length > 0 && !loadingSendOtherCompetence) {
+            setLoadingSendOtherCompetence(true)
+            try {
+                const userOnline = await UserService.updateUser({skills: otherCompetencesAdded});
+                if(userOnline.etat) {
+                    const {access_token, ...rest} = userOnline.result.client;
+                    setUser(rest);
+                    
+                    setLoadingSendOtherCompetence(false);
+                    setOtherCompetencesAdded([]);
+                    
+                }
+            } catch (error) {
+                const {response} = error
+                
+                for (const errorMessage of response.data.message) {
+                    openNotificationWithIcon({type: 'error', message: 'Echec', description: errorMessage })
+                }
+            }
+        }
+    }
+
+    const handleSumbitCertificationOffShore = async (e) => {
+        e.preventDefault()
+        if(certificationsAdded.length > 0) {
+            try {
+                const userOnline = await UserService.updateUser({certifications: certificationsAdded});
+                if(userOnline.etat) {
+                    const {access_token, ...rest} = userOnline.result.client;
+                    setUser(rest);
+                    
+                    setCertificationsAdded([]);
+                    
+                }
+            } catch (error) {
+                const {response} = error
+                
+                for (const errorMessage of response.data.message) {
+                    openNotificationWithIcon({type: 'error', message: 'Echec', description: errorMessage })
+                }
+            }
+        }
+    }
+
+    const handleSumbitCertificationOnShore = async (e) => {
+        e.preventDefault()
+        if(certificationsOnShoreAdded.length > 0) {
+            try {
+                const userOnline = await UserService.updateUser({certificationsOnShore: certificationsOnShoreAdded});
+                if(userOnline.etat) {
+                    const {access_token, ...rest} = userOnline.result.client;
+                    setUser(rest);
+                    
+                    setCertificationsOnShoreAdded([]);
+                
+                }
+            } catch (error) {
+                const {response} = error
+                
+                for (const errorMessage of response.data.message) {
+                    openNotificationWithIcon({type: 'error', message: 'Echec', description: errorMessage })
+                }
+            }
+        }
+    }
+
+    const handleSumbitAvailableOffShore = async (onShore) => {
+        try {
+            setAvailableOffShore(onShore);
+            const userOnline = await UserService.updateUser({onShore});
+            if(userOnline.etat) {
+                const {access_token, ...rest} = userOnline.result.client;
+                setUser(rest);
+            }
+        } catch (error) {
+            const {response} = error
+            
+            for (const errorMessage of response.data.message) {
+                openNotificationWithIcon({type: 'error', message: 'Echec', description: errorMessage })
+            }
+        }
+        
+    }
+
+    const handleSumbitDegree = async (e) => {
+        e.preventDefault()
+        if(degree.length > 0) {
+            try {
+                const levelGruaduate = parseInt(degree.split(':')[1], 10)
+                const userOnline = await UserService.updateUser({levelGruaduate});
+                if(userOnline.etat) {
+                    const {access_token, ...rest} = userOnline.result.client;
+                    setUser(rest);
+                    
+                    setDegree([]);
+                    setIsEditDegree(false);
+                    
+                }
+            } catch (error) {
+                const {response} = error
+                
+                for (const errorMessage of response.data.message) {
+                    openNotificationWithIcon({type: 'error', message: 'Echec', description: errorMessage })
+                }
+            }
+        }
+    }
+
+    const handleSumbitYearExperience = async (e) => {
+        e.preventDefault()
+        if(yearsExperience.length > 0) {
+            try {
+                const yearExperience = new Date().getFullYear() - parseInt(yearsExperience, 10);
+                const userOnline = await UserService.updateUser({yearExperience});
+                if(userOnline.etat) {
+                    const {access_token, ...rest} = userOnline.result.client;
+                    setUser(rest);
+                    
+                    setYearsExperience('');
+                    setIsEditYearExperience(false);
+                    
+                }
+            } catch (error) {
+                const {response} = error
                 
                 for (const errorMessage of response.data.message) {
                     openNotificationWithIcon({type: 'error', message: 'Echec', description: errorMessage })
@@ -306,11 +491,11 @@ export default function BlogDetail(){
 
     const handleSumbitJob = async (e) => {
         e.preventDefault()
-        if(skillsAdded.length > 0 && !stateCreateJob) {
+        if(domainesAdded.length > 0 && !stateCreateJob) {
             setStateCreateJob(true)
             try {
                 messageApi.loading("emploi en cours de création")
-                const newJob = await JobOfferService.createJob({...formValues, skills: skillsAdded.join(';')});
+                const newJob = await JobOfferService.createJob({...formValues, skills: otherCompetencesAdded.join(';')});
                 if(newJob.etat) {
                     setFormValues({
                         title: '',
@@ -318,9 +503,10 @@ export default function BlogDetail(){
                         location: '',
                         contractType: null,
                         salaryRange: '',
+                        onShore: false
                     
                     })
-                    setSkillsAdded([])
+                    setDomainesAdded([])
                     handleClearEditor()
                     await getUser()
                     messageApi.success("Demande emploi en cours de validation par l'administration")
@@ -357,8 +543,20 @@ export default function BlogDetail(){
                 <div className="row mt-5 justify-content-center">
                     <div className="col-12">
                         <div className="title-heading text-center">
-                            <span className="badge bg-primary">{loadedUser && user && `${user.role === CANDIDATE ? 'Profil Candidat': 'Compte Entreprise'}`}</span>
-                            <h5 className="heading fw-semibold mb-0 sub-heading text-white title-dark mt-4">{loadedUser && user && user.fullName}</h5>
+                            
+                            {loadedUser && user &&
+                            <>
+                            <Avatar
+                            size={{ xs: 24, sm: 32, md: 40, lg: 64, xl: 80, xxl: 100 }}
+                            src={`${baseUrlAssetLogos}/${user.profil}`}
+                            />
+                            <h5 className="heading fw-semibold mb-0 sub-heading text-white title-dark mt-1">{user.fullName}</h5>
+                            <span className="badge bg-primary">{user.role === CANDIDATE ? 'Profil Candidat': 'Compte Entreprise'}</span>
+                            <br />
+                            </>
+                            }
+                            
+                            
 
                             {/* <ul className="list-inline text-center mb-0">
                                 <li className="list-inline-item mx-4 mt-4">
@@ -409,7 +607,7 @@ export default function BlogDetail(){
                                 <div className="card border-0 shadow rounded-3 overflow-hidden">
                                     <div className="container mt-3">
                                         <div className='row'>
-                                            <div className='col-md-5'>
+                                            <div className='col-md-3'>
                                             <Dragger {...props}>
                                                 <p className="ant-upload-drag-icon">
                                                 <InboxOutlined />
@@ -420,31 +618,202 @@ export default function BlogDetail(){
                                                 </p>
                                             </Dragger>
                                             </div>
-                                            <div className='col-md-7'>
-                                            <div className="mt-4 pt-2 text-center">
-                                                <h6 className="pt-2 pb-2 bg-light rounded-3">Mes Palettes de compétences</h6>
-                                                <ul className="tagcloud list-unstyled mt-4">
+                                            <div className='col-md-3'>
+                                                <div className="text-center">
+                                                    <h6 className="pb-1 bg-light rounded-3">Domaines d'activités</h6>
+                                                    <ul className="tagcloud list-unstyled mt-1">
+                                                        
+                                                        {user && user.domainsActivity.length > 0 && user.domainsActivity.map((domaine, index) => <li key={`domaine-${index}_${Math.floor(Math.random() * 99999999)}`} className="list-inline-item m-1"><Link href="#" className="rounded-3 fw-medium text-dark inline-block py-2 px-3">{domaine}</Link></li>)}
+
+
+                                                    </ul>
+
+                                                    { isEditDomaine &&
+                                                        <Select
+                                                        mode="multiple"
+                                                        allowClear
+                                                        style={{
+                                                            width: '100%',
+                                                        }}
+                                                        maxCount={2}
+                                                        
+                                                        value={domainesAdded}
+                                                        placeholder="Ajouter maximum 2 domaines"
+                                                        onChange={handleChangeDomaine}
+                                                        options={domaines}
+                                                    />
+                                                    }
+                                                    <div className='mt-3 mb-3'>
+                                                    {domainesAdded.length > 0 && isEditDomaine && <button className={"btn w-100 " + (loadingSendSkill ? 'btn-light' : 'btn-primary')} type="button" onClick={handleSumbitDomaines}> {loadingSendSkill ? <Spin /> : 'Terminer'}</button>}
+                                                    {user && user.domainsActivity.length > 0 && !isEditDomaine && <button className="btn w-100 btn-info" type="button" onClick={(e)=>{
+                                                        e.preventDefault();
+                                                        setIsEditDomaine(true);
+                                                        handleChangeDomaine(user.domainsActivity)
+                                                    }}>Modifier</button>}
+                                                    </div>
+                                                </div>
+                                                <div className="mt-2 text-center">
+                                                    <h6 className="pb-1 bg-light rounded-3">Palettes de compétences</h6>
+                                                    <ul className="tagcloud list-unstyled mt-1">
+                                                        
+                                                        {user && user.skills.length > 0 && user.skills.map((skill, index) => <li key={`skill-${index}_${Math.floor(Math.random() * 99999999)}`} className="list-inline-item m-1"><Link href="#" className="rounded-3 fw-medium text-dark inline-block py-2 px-3">{skill}</Link></li>)}
+
+
+                                                    </ul>
+
+                                                        <Select
+                                                        mode="tags"
+                                                        allowClear
+                                                        style={{
+                                                            width: '100%',
+                                                        }}                                                        
+                                                        value={otherCompetencesAdded}
+                                                        placeholder="Ajouter des compétences"
+                                                        onChange={handleChangeOtherCompetences}
+                                                        options={skillsLocals}
+                                                    />
+                                                    <div className='mt-3 mb-3'>
+                                                    {otherCompetencesAdded.length > 0 && <button className={"btn w-100 " + (loadingSendOtherCompetence ? 'btn-light' : 'btn-primary')} type="button" onClick={handleSumbitSkill}> {loadingSendOtherCompetence ? <Spin /> : 'Terminer'}</button>}
                                                     
-                                                    {user && user.skills.length > 0 && user.skills.map((skill, index) => <li key={`skill-${index}_${Math.floor(Math.random() * 99999999)}`} className="list-inline-item m-1"><Link href="#" className="rounded-3 fw-medium text-dark inline-block py-2 px-3">{skill}</Link></li>)}
-
-
-                                                </ul>
-
-                                                <Select
-                                                    mode="multiple"
-                                                    allowClear
-                                                    style={{
-                                                        width: '100%',
-                                                    }}
-                                                    value={skillsAdded}
-                                                    placeholder="Complêtez vos compétences"
-                                                    onChange={handleChange}
-                                                    options={skillsLocals}
-                                                />
-                                                <div className='mt-3 mb-3'>
-                                                {skillsAdded.length > 0 && <button className={"btn w-100 " + (loadingSendSkill ? 'btn-light' : 'btn-primary')} type="button" onClick={handleSumbitSkill}> {loadingSendSkill ? <Spin /> : 'Terminer'}</button>}
+                                                    </div>
                                                 </div>
                                             </div>
+                                            <div className='col-md-3'>
+                                                <div className="text-center">
+                                                    <h6 className="pb-1 bg-light rounded-3">Niveau d'étude</h6>
+                                                    <ul className="tagcloud list-unstyled mt-1">
+                                                        
+                                                        {user && user.levelGruaduate && <li className="list-inline-item m-1"><Link href="#" className="rounded-3 fw-medium text-dark inline-block py-2 px-3">{degreeAccademy.find(degreeItem => parseInt(degreeItem.value.split(':')[1], 10) === user.levelGruaduate).label}</Link></li>}
+
+
+                                                    </ul>
+
+                                                    { isEditDegree &&
+                                                        <Select
+                                                        allowClear
+                                                        style={{
+                                                            width: '100%',
+                                                        }}                                                        
+                                                        value={degree}
+                                                        placeholder="Choisissez votre niveau d'étude"
+                                                        onChange={handleChangeDegreeAccademy}
+                                                        options={degreeAccademy}
+                                                    />
+                                                    }
+                                                    <div className='mt-3 mb-3'>
+                                                    {degree.length > 0 && isEditDegree && <button className={"btn w-100 " + (loadingSendSkill ? 'btn-light' : 'btn-primary')} type="button" onClick={handleSumbitDegree}> {loadingSendSkill ? <Spin /> : 'Terminer'}</button>}
+                                                    {user && user.levelGruaduate && !isEditDegree && <button className="btn w-100 btn-light" type="button" onClick={(e)=>{
+                                                        e.preventDefault();
+                                                        setIsEditDegree(true)
+                                                    }}>Modifier</button>}
+                                                    </div>
+                                                </div>
+                                                <div className="mt-2 text-center">
+                                                    <h6 className="pb-1 bg-light rounded-3">Diplome et certifications sur terres</h6>
+                                                    <ul className="tagcloud list-unstyled mt-1">
+                                                        
+                                                        {user && user.certifications.length > 0 && user.certifications.map((certification, index) => <li key={`certification-${index}_${Math.floor(Math.random() * 99999999)}`} className="list-inline-item m-1"><Link href="#" className="rounded-3 fw-medium text-dark inline-block py-2 px-3">{certification}</Link></li>)}
+
+
+                                                    </ul>
+
+                                                        <Select
+                                                        mode="tags"
+                                                        allowClear
+                                                        style={{
+                                                            width: '100%',
+                                                        }}                                                        
+                                                        value={certificationsAdded}
+                                                        placeholder="Ajouter des certifications"
+                                                        onChange={handleChangeCertificationOffShore}
+                                                        options={certificationsLocal}
+                                                    />
+                                                    <div className='mt-3 mb-3'>
+                                                    {certificationsAdded.length > 0 && <button className={"btn w-100 " + (loadingSendOtherCompetence ? 'btn-light' : 'btn-primary')} type="button" onClick={handleSumbitCertificationOffShore}> {loadingSendOtherCompetence ? <Spin /> : 'Terminer'}</button>}
+                                                    
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div className='col-md-3'>
+                                            <div className="text-center">
+                                                    <h6 className="pb-1 bg-light rounded-3">Travaillez vous en mer ?</h6>
+                                                    <Flex vertical gap="middle">
+                                                        <Radio.Group
+                                                            block
+                                                            options={optionsAvailableOffShore}
+                                                            value={availableOffShore}
+                                                            onChange={(e)=>{
+                                                                e.preventDefault();
+                                                                handleSumbitAvailableOffShore(e.target.value);
+                                                                
+                                                            }}
+                                                            optionType="button"
+                                                            buttonStyle="solid"
+                                                        />
+                                                    </Flex>
+                                                </div>
+                                                {
+                                                    availableOffShore &&
+                                                    (
+                                                        <div className="mt-2 text-center">
+                                                            <h6 className="pb-1 bg-light rounded-3">Certifications en mer</h6>
+                                                            <ul className="tagcloud list-unstyled mt-1">
+                                                                
+                                                            {user && user.certificationsOnShore.length > 0 && user.certificationsOnShore.map((certification, index) => <li key={`certificationOnShore-${index}_${Math.floor(Math.random() * 99999999)}`} className="list-inline-item m-1"><Link href="#" className="rounded-3 fw-medium text-dark inline-block py-2 px-3">{certification}</Link></li>)}
+
+
+                                                            </ul>
+                                                                <Select
+                                                                mode='multiple'
+                                                                allowClear
+                                                                style={{
+                                                                    width: '100%',
+                                                                }}                                                        
+                                                                value={certificationsOnShoreAdded}
+                                                                placeholder="Choisissez vos certifications reçu"
+                                                                onChange={handleChangeCertificationOnShore}
+                                                                options={certifications}
+                                                            />
+                                                            <div className='mt-3 mb-3'>
+                                                            {certificationsOnShoreAdded.length > 0 && <button className={"btn w-100 " + (loadingSendSkill ? 'btn-light' : 'btn-primary')} type="button" onClick={handleSumbitCertificationOnShore}> {loadingSendSkill ? <Spin /> : 'Terminer'}</button>}
+                                                            
+                                                            </div>
+                                                        </div>
+                                                    )
+                                                }
+
+<div className="mt-2 text-center">
+                                                            <h6 className="pb-1 bg-light rounded-3">Année d'experience</h6>
+                                                            {/* <p>Combien d'année d'experience avez-vous dans votre domaine de prédilection</p> */}
+                                                            {
+                                                                !isEditYearExperience ? (
+                                                                    <ul className="tagcloud list-unstyled mt-1">
+                                                                    {user && <li key={`certificationOnShore_${Math.floor(Math.random() * 99999999)}`} className="list-inline-item m-1"><Link href="#" className="rounded-3 fw-medium text-dark inline-block py-2 px-3">{new Date().getFullYear() - user.yearExperience} {new Date().getFullYear() - user.yearExperience > 1 ? 'années':'année'}</Link></li>}
+                                                                    </ul>
+                                                                )
+                                                                :
+                                                                (
+                                                                    <div className="form-floating mb-2">
+                                                                        <input type="number" name="yearsExperience" onChange={(e)=>{
+                                                                            setYearsExperience(e.target.value);
+                                                                        }} value={yearsExperience} className="form-control" id="floatingPhoneNumber"/>
+                                                                        <label htmlFor="floatingPhoneNumber">Combien d'année d'expérience avez-vous</label>
+                                                                    </div>
+                                                                )
+                                                            }
+
+                                                            
+                                                            <div className='mt-3 mb-3'>
+                                                            {isEditYearExperience && <button className={"btn w-100 btn-primary"} type="button" onClick={handleSumbitYearExperience}> {loadingSendSkill ? <Spin /> : 'Terminer'}</button>}
+                                                    {user && !isEditYearExperience && <button className="btn w-100 btn-info" type="button" onClick={(e)=>{
+                                                        e.preventDefault();
+                                                        setIsEditYearExperience(true);
+                                                        setYearsExperience((new Date().getFullYear() - user.yearExperience).toString())
+                                                    }}>Modifier</button>}
+                                                            
+                                                            </div>
+                                                        </div>
+                                                
                                             </div>
                                         </div>
 
@@ -466,12 +835,12 @@ export default function BlogDetail(){
                                         <h6 className="pt-2 pb-2 bg-light rounded-3 text-center">Récemment postulé</h6>
                                         <div className="mt-4 container">
                                             <div className="row">
-                                            {user?.candidatures?.map((candidature,index)=>{
+                                            {user?.candidatures?.map((candidature)=>{
                                                 return(
                                                     <div key={`candidature_${Math.floor(Math.random() * 99999999)}`} className="col-lg-6 col-md-6 col-12">
                                                         <Link href={`/job/${candidature.jobOffer._id}`}>
                                                         <div className="blog blog-primary d-flex align-items-center mt-3">
-                                                            <Image src={'/images/property/offre.jpg'} width={105} height={65} className="avatar avatar-small rounded-3" style={{width: "auto"}} alt={candidature.jobOffer.title}/>
+                                                            <Image src={`${baseUrlAssetLogos}/${candidature.jobOffer.cover}`} width={105} height={65} className="avatar avatar-small rounded-3" style={{width: "auto"}} alt={candidature.jobOffer.title}/>
                                                             <div className="flex-1 ms-3">
                                                                 <h6 className="d-block title text-dark fw-medium">{candidature.jobOffer.title}</h6>
                                                                 <span className="text-muted small">{horodatage(candidature.created_at)}</span>
@@ -490,7 +859,7 @@ export default function BlogDetail(){
                                 
                                     {/* <div className="mt-4 pt-2 text-center">
                                         <h6 className="pt-2 pb-2 bg-light rounded-3">Palette de compétence</h6>
-                                        <ul className="tagcloud list-unstyled mt-4">
+                                        <ul className="tagcloud list-unstyled mt-1">
                                             <li className="list-inline-item m-1"><Link href="#" className="rounded-3 fw-medium text-dark inline-block py-2 px-3">Business</Link></li>
                                             <li className="list-inline-item m-1"><Link href="#" className="rounded-3 fw-medium text-dark inline-block py-2 px-3">Finance</Link></li>
                                             <li className="list-inline-item m-1"><Link href="#" className="rounded-3 fw-medium text-dark inline-block py-2 px-3">Marketing</Link></li>
@@ -532,7 +901,7 @@ export default function BlogDetail(){
                                                 <div className="col-md-6 col-6">
                                                     <div className="form-floating mb-2 mt-2">
                                                         <input type="text" name="location" onChange={handleChangeInput} value={formValues.location} className="form-control" id="floatingInput" placeholder="Abidjan, cocody"/>
-                                                        <label htmlFor="floatingInput">Lieu du poste</label>
+                                                        <label htmlFor="floatingInput">Situation géographique</label>
                                                     </div>
                                                 </div>
                                                 <div className="col-md-6 col-6">
@@ -544,14 +913,14 @@ export default function BlogDetail(){
                                                 <div className="col-md-6 col-6">
                                                     <div className="form-floating mb-2 mt-2">
                                                         <Select
-                                                            mode="multiple"
+                                                            mode="tags"
                                                             allowClear
                                                             style={{
                                                                 width: '100%',
                                                             }}
-                                                            value={skillsAdded}
+                                                            value={otherCompetencesAdded}
                                                             placeholder="Ajouter les compétences"
-                                                            onChange={handleChange}
+                                                            onChange={handleChangeOtherCompetences}
                                                             options={skillsLocals}
                                                         />
                                                     </div>
@@ -575,6 +944,17 @@ export default function BlogDetail(){
                                                     
                                                     <TinyMCEEditor ref={editorRef} onChange={handleEditorContentChange} initialValue={formValues.description} />
                                                 </div>
+
+
+                                                <div className="col-md-12 col-12">
+                                                    <div className="form-check mt-3 mb-3">
+                                                        <input className="form-check-input" type="checkbox" checked={formValues.onShore} id="flexCheckDefault" onClick={(e) => {
+                                                            setFormValues({...formValues, onShore: !formValues.onShore })
+                                                        }}/>
+                                                        <label className="form-check-label" htmlFor="flexCheckDefault">Cette offre d'emploie est sur mer</label>
+                                                    </div>
+                                                </div>
+                                                
 
                                                 <div className="col-md-12 col-12 mt-3 mb-3">
                                                     
@@ -602,7 +982,7 @@ export default function BlogDetail(){
                                                                 <div className="card property property-list border-0 shadow position-relative overflow-hidden rounded-3">
                                                                     <div className="d-md-flex">
                                                                         <div className="property-image position-relative overflow-hidden shadow flex-md-shrink-0 rounded-3 m-2">
-                                                                            <Image src={'/images/property/offre.jpg'} width={0} height={0} sizes="100vw" style={{width:'100%', height:'auto'}} className="img-fluid h-100 w-100" alt="illustration job"/>
+                                                                            <Image src={`${baseUrlAssetLogos}/${job.cover}`} width={0} height={0} sizes="100vw" style={{width:'100%', height:'auto'}} className="img-fluid h-100 w-100" alt="illustration job"/>
                                                                             
                                                                         </div>
                                                                         <div className="card-body content p-3">

@@ -1,7 +1,7 @@
 'use client'
 import React, {useState, useEffect} from "react";
 import Link from "next/link";
-import { useParams } from 'next/navigation';
+import { useParams, useSearchParams } from 'next/navigation';
 import LocalService from "../../../../services/localStorageService";
 
 import PropertyDetailImg from "../../components/propertyDetailImg";
@@ -14,6 +14,8 @@ import JobOfferService from "../../../../services/jobOfferService";
 import CandidatureService from "../../../../services/candidatureService";
 import { horodatage } from "../../../../utils/date/horodatage";
 import { displayStatus } from "../../../../utils/helpers/status";
+import {RECRUITER} from "../../../../constants/enums/roleEnum";
+
 import { Tag, Spin, notification } from 'antd';
 import DOMPurify from 'dompurify';
 
@@ -23,17 +25,20 @@ import { useRouter } from 'next/navigation';
 export default function Job(){
     const router = useRouter();
     const params = useParams();
+    const searchParams = useSearchParams();
     const { id } = params;
+
+    const overview = searchParams.get("overview");
+
     const [user, setUser] = useState(null);
     const [jobInfo, setJobInfo] = useState(null);
     const [jobsSimilar, setJobsSimilar] = useState([]);
-    const [loadedInfo, setLoadedInfo] = useState(false)
     const [loading, setLoading] = useState(false)
     const [api, contextHolder] = notification.useNotification();
     useEffect(() => {
         getUser()
         getJobInfo()
-      }, [])
+      }, [id, overview])
 
     const getUser = async () => {
         const userInfo = LocalService.getUser()
@@ -56,12 +61,11 @@ export default function Job(){
         const userInfo = LocalService.getUser()
         try {
 
-            const jobInfo = await JobOfferService.getDetailsJob({_id: id, authenticate: userInfo !== null});
+            const jobInfo = await JobOfferService.getDetailsJob({_id: id, authenticate: userInfo !== null, overview});
             if(jobInfo.etat) {
                 const {job, jobs} = jobInfo.result;
                 setJobInfo(job),
                 setJobsSimilar(jobs)
-                setLoadedInfo(true)
             }
         } catch (error) {
             console.log(error.message)
@@ -69,10 +73,36 @@ export default function Job(){
         
     }
 
+
     const handleCandidate = async (e) => {
         e.preventDefault();
         if(!loading) {
             if(user) {
+                let readySend = true;
+                if(user.domainsActivity.length === 0) {
+                    openNotificationWithIcon({type: 'warning', message: 'Profil inssufissant', description: "Veuillez renseigner vos domaines d'activité sur votre profil bien avant"});
+                    readySend = false;
+                }
+                if(!user.levelGruaduate) {
+                    openNotificationWithIcon({type: 'warning', message: 'Profil inssufissant', description: "Veuillez renseigner votre niveau d'étude sur votre profil bien avant"});
+                    readySend = false;
+                }
+                if(!user.resume) {
+                    openNotificationWithIcon({type: 'warning', message: 'Profil inssufissant', description: "Veuillez charger votre CV sur votre profil bien avant"});
+                    readySend = false;
+                }
+                if((user.certifications.length === 0 && !user.onShore)) {
+                    openNotificationWithIcon({type: 'warning', message: 'Profil inssufissant', description: "Veuillez renseigner vos diplomes/certifications sur votre profil bien avant"});
+                    readySend = false;
+                }
+                if((new Date().getFullYear() - user.yearExperience === 0)) {
+                    openNotificationWithIcon({type: 'warning', message: 'Profil inssufissant', description: "Veuillez renseigner vos années d'expériences sur votre profil bien avant"});
+                    readySend = false;
+                }
+                
+                if(!readySend) {
+                    return false;
+                }
                 try {
                     setLoading(true)
                     const response = await CandidatureService.createCandidature({jobOffer: id});
@@ -153,7 +183,7 @@ export default function Job(){
 
                             <div className="">
                                 <div className="d-flex align-items-center justify-content-between mt-2">
-                                    <span className="small text-muted">Lieu</span>
+                                    <span className="small text-muted">Situation géographique</span>
                                     <span className="small">{jobInfo?.location}</span>
                                 </div>
 
@@ -170,10 +200,10 @@ export default function Job(){
 
                             <div className="d-flex mt-3">
                                 {
-                                    jobInfo?.candidature === 'None' ?
+                                    jobInfo?.candidature === 'None' && ((user && user?.role !== RECRUITER) || (!user)) ?
                                     <button type='button' onClick={handleCandidate} className={"btn w-100 me-2 " + (loading ? 'btn-light' : 'btn-primary')}>{loading ? <Spin /> : 'Postuler'}</button>
                                     :
-                                    jobInfo && <Tag color={displayStatus(jobInfo?.candidature)[1]}>{displayStatus(jobInfo?.candidature)[0]}</Tag>
+                                    jobInfo && user && user?.role !== RECRUITER && <Tag color={displayStatus(jobInfo?.candidature)[1]}>{displayStatus(jobInfo?.candidature)[0]}</Tag>
                                 }
                                 {/* <Link href="#" className="btn btn-primary w-100">Offer now</Link> */}
                             </div>

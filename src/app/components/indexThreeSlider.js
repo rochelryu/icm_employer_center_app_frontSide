@@ -7,7 +7,7 @@ export default function IndexThreeSlider(){
     return(
         <section className="swiper-slider-hero position-relative d-block vh-100" id="home">
             <Carousel infiniteLoop={true} className="vh-100" autoPlay={true} showThumbs={false} showStatus={false}>
-                <div className="slide-inner slide-bg-image d-flex align-items-center vh-100" style={{backgroundImage:"url('/images/bg/03.jpg')"}}>
+                <div className="slide-inner slide-bg-image d-flex align-items-center vh-100" style={{backgroundImage:"url('/images/bg/icm.jpg')"}}>
                     <div className="bg-overlay"></div>
                     <div className="container">
                         <div className="row">

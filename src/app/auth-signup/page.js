@@ -1,13 +1,15 @@
 'use client'
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { Segmented, Spin, Select, Upload, Flex, notification } from 'antd';
 import  UserService from '../../../services/userService';
 import  CompanyService from '../../../services/companyService';
-import {domainesActivites} from "../../../constants/skills/skills";
 import ImgCrop from 'antd-img-crop';
 import { useRouter } from 'next/navigation';
+import VisibilityIcon from '@mui/icons-material/Visibility';
+import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
+import JobOfferService from "../../../services/jobOfferService";
 
 export default function Signup(){
     const router = useRouter();
@@ -23,10 +25,13 @@ export default function Signup(){
         logoName: '',
     });
     const [fileList, setFileList] = useState([]);
+    const [domaines, setDomaines] = useState([]);
 
     const [isParticular, setParticular] = useState(true)
     const [loading, setLoading] = useState(false)
     const [api, contextHolder] = notification.useNotification();
+    const [showPassword, setShowPassword] = useState(false);
+
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -36,13 +41,17 @@ export default function Signup(){
         });
     };
 
+    const togglePasswordVisibility = () => {
+        setShowPassword(!showPassword);
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         if(!loading) {
             try {
                 if(isParticular) {
-                    const {fullName, email, password, phoneNumber} = formValues
-                    const values = Object.values({fullName, email, password, phoneNumber});
+                    const {fullName, email, password, phoneNumber, logoName } = formValues
+                    const values = Object.values({fullName, email, password, phoneNumber, logoName});
 
                     const validForm = values.filter(value => value.trim().length === 0).length === 0
                     if(validForm) {
@@ -53,6 +62,8 @@ export default function Signup(){
                             router.push('/profil');
                         }
                         setLoading(false)
+                    } else {
+                        openNotificationWithIcon({type: 'warning', message: 'Champs obligatoire', description: "Veuillez vous rassurer que vous n'avez pas oubliez un champs pour l'inscription"})
                     }
                 } else {
                     setLoading(true)
@@ -133,10 +144,23 @@ export default function Signup(){
           description
         });
       };
+
+      useEffect(() => {
+        getDomaine()
+            },
+        []);
+
+        const getDomaine = async () => {
+            const domainesInfo = await JobOfferService.getAllDomaine();
+            if(domainesInfo.etat) {
+                const domainesFilter = domainesInfo.result.map(domaine => ({label: domaine.title, value: domaine.title}));
+                setDomaines(domainesFilter);
+            }
+        }
     return(
         <section className="bg-home zoom-image d-flex align-items-center">
             {contextHolder}
-            <div className="bg-overlay image-wrap" style={{backgroundImage:"url('/images/bg/03.jpg')", backgroundPosition:'center'}}></div>
+            <div className="bg-overlay image-wrap" style={{backgroundImage:"url('/images/bg/icm.jpg')", backgroundPosition:'center'}}></div>
             <div className="bg-overlay bg-gradient-overlay"></div>
             <div className="container">
                 <div className="row">
@@ -149,6 +173,20 @@ export default function Signup(){
                                         isParticular ?
                                         (
                                             <>
+                                            <Flex gap={'middle'} align='center' vertical justify="center" style={{margin: 10}}>
+                                            <ImgCrop rotationSlider>
+                                                <Upload
+                                                listType="picture-card"
+                                                fileList={fileList}
+                                                onChange={onChange}
+                                                onPreview={onPreview}
+                                                beforeUpload={() => false} // Désactive l'upload automatique
+                                                maxCount={1} // Limiter à un seul fichier
+                                                >
+                                                {fileList.length < 1 && '+ Photo de profil'}
+                                                </Upload>
+                                            </ImgCrop>
+                                            </Flex>
                                             <div className="form-floating mb-2 mt-2">
                                                 <input type="text" name="fullName" onChange={handleChange} value={formValues.fullName} className="form-control" id="floatingInput" placeholder="Harry"/>
                                                 <label htmlFor="floatingInput">Nom complet</label>
@@ -165,8 +203,16 @@ export default function Signup(){
                                             </div>
 
                                             <div className="form-floating mb-3">
-                                                <input type="password" name="password" onChange={handleChange} value={formValues.password} className="form-control" id="floatingPassword" placeholder="xxxxxxxxxx"/>
+                                                <input type={showPassword ? "text" : "password"} name="password" onChange={handleChange} value={formValues.password} className="form-control" id="floatingPassword" placeholder="xxxxxxxxxx"/>
                                                 <label htmlFor="floatingPassword">Mot de passe</label>
+                                                <button
+                                                    type="button"
+                                                    className="btn btn-link position-absolute"
+                                                    style={{ right: "0px", top: "50%", transform: "translateY(-50%)" }}
+                                                    onClick={togglePasswordVisibility}
+                                                >
+                                                    {showPassword ? <VisibilityOffIcon color="action" /> : <VisibilityIcon color="action" />} {/* Afficher ou masquer l'icône en fonction de l'état */}
+                                                </button>
                                             </div>
                                         
                                             <div className="form-check mb-3">
@@ -204,7 +250,7 @@ export default function Signup(){
                                                     value={formValues.industry}
                                                     placeholder="Quel est votre domaine d'activité"
                                                     onChange={(value) => { setFormValues({...formValues,industry: value })}}
-                                                    options={domainesActivites}
+                                                    options={domaines}
                                                 />
                                             </div>
                                             
@@ -214,7 +260,7 @@ export default function Signup(){
                                             </div>
                                             <div className="form-floating mb-2 mt-2">
                                                 <input type="text" name="location" onChange={handleChange} value={formValues.location} className="form-control" id="floatingInput" placeholder="Harry"/>
-                                                <label htmlFor="floatingInput">Lieu de l'entreprise</label>
+                                                <label htmlFor="floatingInput">Situation géographique</label>
                                             </div>
 
                                             <div className="form-floating mb-2">
@@ -228,8 +274,16 @@ export default function Signup(){
                                             </div>
 
                                             <div className="form-floating mb-3">
-                                                <input type="password" name="password" onChange={handleChange} value={formValues.password} className="form-control" id="floatingPassword" placeholder="xxxxxxxxxx"/>
+                                                <input type={showPassword ? "text" : "password"} name="password" onChange={handleChange} value={formValues.password} className="form-control" id="floatingPassword" placeholder="xxxxxxxxxx"/>
                                                 <label htmlFor="floatingPassword">Mot de passe</label>
+                                                <button
+                                                    type="button"
+                                                    className="btn btn-link position-absolute"
+                                                    style={{ right: "0px", top: "50%", transform: "translateY(-50%)" }}
+                                                    onClick={togglePasswordVisibility}
+                                                >
+                                                    {showPassword ? <VisibilityOffIcon color="action" /> : <VisibilityIcon color="action" />} {/* Afficher ou masquer l'icône en fonction de l'état */}
+                                                </button>
                                             </div>
                                         
                                             <div className="form-check mb-3">

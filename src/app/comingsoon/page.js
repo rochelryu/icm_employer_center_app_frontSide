@@ -7,7 +7,7 @@ export default function Comingsoon(){
 
     return(
         <section className="bg-home zoom-image d-flex align-items-center">
-            <div className="bg-overlay image-wrap" style={{backgroundImage:"url('/images/bg/03.jpg')", backgroundPosition:'center'}}></div>
+            <div className="bg-overlay image-wrap" style={{backgroundImage:"url('/images/bg/icm.jpg')", backgroundPosition:'center'}}></div>
             <div className="bg-overlay bg-gradient-overlay"></div>
             <div className="container-fluid">
                 <div className="row">
