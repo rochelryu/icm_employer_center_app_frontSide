@@ -5,7 +5,6 @@ import Image from "next/image";
 
 import Navbar from "../components/navbar";
 import Footer from "../components/footer";
-import AssignmentReturnedTwoToneIcon from '@mui/icons-material/AssignmentReturnedTwoTone';
 import ScrollTop from "../components/scrollTop";
 import TinyMCEEditor from "../components/editor/tinymce";
 import { displayStatus } from "../../../utils/helpers/status";
@@ -24,7 +23,7 @@ import {skillsLocals, contractType, degreeAccademy, certificationsLocal} from ".
 import {baseUrl, baseUrlAssetLogos} from "../../../constants/serveur/serveur";
 import { useRouter } from 'next/navigation';
 const { Dragger } = Upload;
-const {Text}= Typo
+const {Text, Paragraph}= Typo
 import {
     LogoutOutlined
   } from '@ant-design/icons';
@@ -175,24 +174,46 @@ export default function BlogDetail(){
       };
 
       const columns = [
+    
         {
           title: 'Nom',
           dataIndex: 'fullName',
           key: 'fullName',
-        },
-    
-        {
-          title: 'Adresse',
-          dataIndex: 'email',
-          key: 'email',
-          render: (_, { email, phoneNumber }) => (
+          render: (_, { fullName, profil, levelGruaduate }) => (
+            <>
+            <Avatar
+            size={{ xs: 24, sm: 32, md: 40, lg: 64, xl: 80, xxl: 100 }}
+            src={`${baseUrlAssetLogos}/${profil}`}
+            />
             <Typo>
-              <Text>{email}</Text>
               <Divider style={{margin: 0}} />
-              <Text strong>{phoneNumber}</Text>
+              <Paragraph>
+                <Text style={{textAlign: 'center'}} strong>{fullName}</Text>
+              </Paragraph>
+              
+              <Text underline>{degreeAccademy.filter(degreeInfo => parseInt(degreeInfo.value.split(':')[1], 10) === levelGruaduate)[0].label}</Text>
             </Typo>
+            </>
+            
           ),
         },
+        {
+            title: 'Domaines',
+            key: 'domaines',
+            dataIndex: 'domaines',
+            render: (_, { domaines, yearExperience }) => (
+              <>
+                {domaines.map((domaine) => {
+                  return (
+                    <Tag key={`domaine-${domaine}-${Math.floor(Math.random() * 99999999)}`} color='geekblue'>
+                      {domaine.toUpperCase()}
+                    </Tag>
+                  );
+                })}
+                <Text>Avec {yearExperience} année{yearExperience > 1 ? "s d'expériences" : "d'expérience"}</Text>
+              </>
+            ),
+          },
         {
           title: 'Compétences',
           key: 'skills',
@@ -202,7 +223,7 @@ export default function BlogDetail(){
               {skills.map((skill) => {
                 return (
                   <Tag key={`skill-${skill}-${Math.floor(Math.random() * 99999999)}`}>
-                    {skill.toUpperCase()}
+                    {skill.trim()}
                   </Tag>
                 );
               })}
@@ -210,15 +231,31 @@ export default function BlogDetail(){
           ),
         },
         {
-            title: 'CV',
-            dataIndex: 'resume',
-            key: 'resume',
-            render: (_, { resume }) => (
-              <Link href={`${baseUrl}/uploads/resumes/${resume}`} target='_blank' download>
-                <AssignmentReturnedTwoToneIcon sx={{ color: pink[500] }}  />
-              </Link>
+            title: 'Certifications',
+            key: 'certifications',
+            dataIndex: 'certifications',
+            render: (_, { certifications }) => (
+              <>
+                {certifications.map((certification) => {
+                  return (
+                    <Tag key={`certification-${certification}-${Math.floor(Math.random() * 99999999)}`} color='gold'>
+                      {certification.trim()}
+                    </Tag>
+                  );
+                })}
+              </>
             ),
-        },
+          },
+        // {
+        //     title: 'CV',
+        //     dataIndex: 'resume',
+        //     key: 'resume',
+        //     render: (_, { resume }) => (
+        //       <Link href={`${baseUrl}/uploads/resumes/${resume}`} target='_blank' download>
+        //         <AssignmentReturnedTwoToneIcon sx={{ color: pink[500] }}  />
+        //       </Link>
+        //     ),
+        // },
         {
             title: 'Etat de candidature',
             key: 'status',
@@ -491,7 +528,7 @@ export default function BlogDetail(){
 
     const handleSumbitJob = async (e) => {
         e.preventDefault()
-        if(domainesAdded.length > 0 && !stateCreateJob) {
+        if(otherCompetencesAdded.length > 0 && !stateCreateJob) {
             setStateCreateJob(true)
             try {
                 messageApi.loading("emploi en cours de création")
