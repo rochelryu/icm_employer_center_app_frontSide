@@ -4,7 +4,7 @@ import React, { useState, useEffect, Suspense} from "react";
 import Link from "next/link";
 import Image from "next/image";
 import JobOfferService from "../../../services/jobOfferService";
-
+import {baseUrlAssetLogos} from "../../../constants/serveur/serveur";
 import SelectOne from "../components/select/selectOne";
 import Navbar from "../components/navbar";
 import Footer from "../components/footer";
@@ -91,7 +91,7 @@ function JobListComponent(){
                                 <div className="card property property-list border-0 shadow position-relative overflow-hidden rounded-3">
                                     <div className="d-md-flex">
                                         <div className="property-image position-relative overflow-hidden shadow flex-md-shrink-0 rounded-3 m-2">
-                                            <Image src={'/images/property/offre.jpg'} width={0} height={0} sizes="100vw" style={{width:'100%', height:'auto'}} className="img-fluid h-100 w-100" alt=""/>
+                                            <Image src={`${baseUrlAssetLogos}/${item.cover}`} width={0} height={0} sizes="100vw" style={{width:'100%', height:'auto'}} className="img-fluid h-100 w-100" alt={item.title}/>
                                             
                                         </div>
                                         <div className="card-body content p-3">

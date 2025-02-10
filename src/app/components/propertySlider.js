@@ -3,6 +3,7 @@ import React from "react";
 import Link from "next/link";
 import Image from "next/image";
 import dynamic from "next/dynamic";
+import {baseUrlAssetLogos} from "../../../constants/serveur/serveur";
 
 
 import { horodatage } from "../../../utils/date/horodatage";
@@ -53,7 +54,7 @@ export default function ProprtySlider({jobs}){
                                     <div className="tiny-slide" key={index}>
                                         <div className="card property border-0 shadow position-relative overflow-hidden rounded-3 m-3">
                                             <div className="property-image position-relative overflow-hidden shadow">
-                                                <Image src={'/images/property/offre.jpg'} width={0} height={0} sizes="100vw" style={{width:'100%', height:'auto'}} className="img-fluid" alt=""/>
+                                                <Image src={`${baseUrlAssetLogos}/${item.cover}`} width={0} height={0} sizes="100vw" style={{width:'100%', height:'auto'}} className="img-fluid" alt={item.title}/>
                                                 
                                             </div>
                                             <div className="card-body content p-4">

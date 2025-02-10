@@ -2,7 +2,7 @@ import React from "react";
 import Link from "next/link";
 import Image from "next/image";
 
-import {FiShoppingCart, FiDribbble, FiLinkedin, FiFacebook, FiInstagram, FiTwitter, FiMail, FiMapPin, FiPhone} from "../assets/icons/vander"
+import {FiLinkedin, FiMail, FiMapPin, FiPhone} from "../assets/icons/vander"
 
 export default function Footer(){
     return(
@@ -20,12 +20,8 @@ export default function Footer(){
                                     </Link>
                                     <p className="mt-4">Une plateforme idéale pour chercher du boulot.</p>
                                     <ul className="list-unstyled social-icon foot-social-icon mb-0 mt-4">
-                                        <li className="list-inline-item"><Link href="#" target="_blank" className="rounded-3"><FiDribbble className="fea icon-sm align-middle"/></Link></li>
                                         <li className="list-inline-item"><Link href="#" target="_blank" className="rounded-3"><FiLinkedin className="fea icon-sm align-middle"/></Link></li>
-                                        <li className="list-inline-item"><Link href="#" target="_blank" className="rounded-3"><FiFacebook className="fea icon-sm align-middle"/></Link></li>
-                                        <li className="list-inline-item"><Link href="#" target="_blank" className="rounded-3"><FiInstagram className="fea icon-sm align-middle"/></Link></li>
-                                        <li className="list-inline-item"><Link href="#" target="_blank" className="rounded-3"><FiTwitter className="fea icon-sm align-middle"/></Link></li>
-                                        <li className="list-inline-item"><Link href="mailto:info@icmemployment.net" className="rounded-3"><FiMail className="fea icon-sm align-middle"/></Link></li>
+                                        <li className="list-inline-item"><Link href="mailto:employmentcenter@holding.com" className="rounded-3"><FiMail className="fea icon-sm align-middle"/></Link></li>
                                     </ul>
                                 </div>
                                 
@@ -54,12 +50,12 @@ export default function Footer(){
         
                                     <div className="d-flex mt-4">
                                         <FiMail className="fea icon-sm text-primary mt-1 me-3"/>
-                                        <Link href="mailto:info@icmemployment.net" className="text-foot">info@icmemployment.net</Link>
+                                        <Link href="mailto:employmentcenter@holding.com" className="text-foot">employmentcenter@holding.com</Link>
                                     </div>
                                     
                                     <div className="d-flex mt-4">
                                         <FiPhone className="fea icon-sm text-primary mt-1 me-3"/>
-                                        <Link href="tel:+152534-468-854" className="text-foot">+225 XX XX XX XX XX</Link>
+                                        <Link href="tel:+225212725005" className="text-foot">+225 21 27 2 50 05</Link>
                                     </div>
                                 </div>
                             </div>

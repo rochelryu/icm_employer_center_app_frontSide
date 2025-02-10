@@ -12,20 +12,19 @@ export default function  ResetPassword(){
                     <div className="col-12">
                         <div className="p-4 bg-white rounded-3 shadow-md mx-auto w-100" style={{maxWidth:'400px'}}>
                             <form>
-                                <Link href="/"><Image src="/images/logo-icon-80.png" width={80} height={80} className="mb-4 d-block mx-auto" alt=""/></Link>
-                                <h5 className="mb-3">Reset your password</h5>
+                                <h5 className="mb-3">Réinitialiser votre mot de passe</h5>
 
-                                <p className="text-muted">Please enter your email address. You will receive a link to create a new password via email.</p>
+                                <p className="text-muted">Veuillez saisir votre adresse électronique. Vous recevrez un lien pour créer un nouveau mot de passe par courriel.</p>
                             
                                 <div className="form-floating mb-3">
                                     <input type="email" className="form-control" id="floatingInput" placeholder="name@example.com"/>
-                                    <label htmlFor="floatingInput">Email address</label>
+                                    <label htmlFor="floatingInput">Email</label>
                                 </div>
                 
-                                <button className="btn btn-primary w-100" type="submit">Send</button>
+                                <button className="btn btn-primary w-100" type="submit">Vérifier</button>
 
                                 <div className="col-12 text-center mt-3">
-                                    <span><span className="text-muted me-2">Remember your password ? </span> <Link href="/auth-login" className="text-dark fw-medium">Sign in</Link></span>
+                                    <span><span className="text-muted me-2">Vous vous souvenez de votre mot de passe ? </span> <Link href="/auth-login" className="text-dark fw-medium">Connectez-vous</Link></span>
                                 </div>
                             </form>
                         </div>

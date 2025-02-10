@@ -15,11 +15,11 @@ export default function CategoriesTwo({jobs}){
             name:'CDD',
             listings:`${jobs.filter(job => job.contractType === 'CDD').length} Disponibles`
         },
-        // {
-        //     image:'/images/property/Freelance.jpg',
-        //     name:'Freelance',
-        //     listings:`${jobs.filter(job => job.contractType === 'Freelance').length} Disponibles`
-        // },
+        {
+            image:'/images/property/Freelance.jpg',
+            name:'Stage',
+            listings:`${jobs.filter(job => job.contractType === 'Stage').length} Disponibles`
+        },
         {
             image:'/images/property/stage.jpg',
             name:'Intérim',

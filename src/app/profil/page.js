@@ -8,27 +8,39 @@ import Footer from "../components/footer";
 import ScrollTop from "../components/scrollTop";
 import TinyMCEEditor from "../components/editor/tinymce";
 import { displayStatus } from "../../../utils/helpers/status";
-import { pink, green, red } from '@mui/material/colors';
+import { green, red } from '@mui/material/colors';
 import CheckCircleTwoToneIcon from '@mui/icons-material/CheckCircleTwoTone';
 import DoDisturbOffTwoToneIcon from '@mui/icons-material/DoDisturbOffTwoTone';
 import MoreHorizIcon from '@mui/icons-material/MoreHoriz'
 import LocalService from "../../../services/localStorageService";
 import { InboxOutlined } from '@ant-design/icons';
-import { Button, message, Upload, Select, Spin, Tag, Space, Table, Typography as Typo, Menu, Flex, Dropdown, Divider, notification, Badge, Avatar, Radio } from 'antd';
+import { Button, message, Upload, Select, Spin, Tag, Space, Table, Typography as Typo, Menu, Flex, Dropdown, Divider, notification, Badge, Avatar, Radio, DatePicker, Input, Empty, Timeline } from 'antd';
 import UserService from "../../../services/userService";
 import JobOfferService from "../../../services/jobOfferService";
 import CandidatureService from "../../../services/candidatureService";
 import {CANDIDATE, RECRUITER} from "../../../constants/enums/roleEnum";
 import {skillsLocals, contractType, degreeAccademy, certificationsLocal} from "../../../constants/skills/skills";
+import {languageOptions, valueWrittenAndSpoken} from "../../../constants/languages/languages";
+
 import {baseUrl, baseUrlAssetLogos} from "../../../constants/serveur/serveur";
 import { useRouter } from 'next/navigation';
 const { Dragger } = Upload;
-const {Text, Paragraph}= Typo
+const {Text, Paragraph, Title}= Typo
 import {
-    LogoutOutlined
+    LogoutOutlined,
+    BankOutlined,
+    CalendarOutlined,
+    EditOutlined,
+    SmileOutlined
   } from '@ant-design/icons';
-import { horodatage } from "../../../utils/date/horodatage";
-import { Typography, Box } from "@mui/material";
+import { formatDate, horodatage } from "../../../utils/date/horodatage";
+import { Typography, Box, Stack } from "@mui/material";
+
+import Accordion from '@mui/material/Accordion';
+import AccordionActions from '@mui/material/AccordionActions';
+import AccordionSummary from '@mui/material/AccordionSummary';
+import AccordionDetails from '@mui/material/AccordionDetails';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 
 const initialForm = {
     title: '',
@@ -57,6 +69,8 @@ export default function BlogDetail(){
     const router = useRouter();
     const [formValues, setFormValues] = useState(initialForm);
     const [user, setUser] = useState(null);
+    const [certificationExpireAt, setCertificationExpireAt] = useState(null);
+    const [certificationOnShoreExpireAt, setCertificationOnShoreExpireAt] = useState(null);
     const [availableOffShore, setAvailableOffShore] = useState(null);
     const [domainesAdded, setDomainesAdded] = useState([]);
     const [degree, setDegree] = useState([]);
@@ -76,6 +90,34 @@ export default function BlogDetail(){
     const [loadingSendSkill, setLoadingSendSkill] = useState(false);
     const [defaultFileList, setDefaultFileList] = useState([]);
     const [messageApi, contextMessageHolder] = message.useMessage();
+
+
+    // Experience
+    const [position, setPosition] = useState(null);
+    const [beginAt, setBeginAt] = useState(null);
+    const [endAt, setEndAt] = useState(null);
+    const [company, setCompany] = useState(null);
+    const [loadingSendExperience, setLoadingSendExperience] = useState(false);
+
+    // Langue
+    const [title, setTitle] = useState(null);
+    const [written, setWritten] = useState(null);
+    const [spoken, setSpoken] = useState(null);
+    const [loadingSendLanguage, setLoadingSendLanguage] = useState(false);
+
+    // Nationality
+    const [nationality, setNationality] = useState("");
+    const [loadingSendNationality, setLoadingSendNationality] = useState(false);
+
+    // HelperContact
+    const [helperContact, setHelperContact] = useState(null);
+    const [loadingSendHelperContact, setLoadingSendHelperContact] = useState(false);
+
+    // Birth
+    const [birthDate, setBirthDate] = useState(null);
+    const [birthPlace, setBirthPlace] = useState(null);
+    const [loadingSendBirthInfo, setLoadingSendBirthInfo] = useState(false);
+
 
 
     useEffect(() => {
@@ -141,6 +183,14 @@ export default function BlogDetail(){
             strokeWidth: 3,
             format: (percent) => percent && `${parseFloat(percent.toFixed(2))}%`,
           },
+      };
+
+      const handleChangeExpireAtCertification = (date, dateString) => {
+        setCertificationExpireAt(date);
+      };
+
+      const handleChangeExpireAtCertificationOnShore = (date, dateString) => {
+        setCertificationOnShoreExpireAt(date);
       };
 
       const handleChangeDomaine = (value) => {
@@ -234,9 +284,17 @@ export default function BlogDetail(){
             title: 'Certifications',
             key: 'certifications',
             dataIndex: 'certifications',
-            render: (_, { certifications }) => (
+            render: (_, { certifications, certificationsOnShore }) => (
               <>
-                {certifications.map((certification) => {
+                
+                {certificationsOnShore && certificationsOnShore.map(({certification}) => {
+                  return (
+                    <Tag key={`certification-${certification}-${Math.floor(Math.random() * 99999999)}`} color='gold'>
+                      {certification.trim()}
+                    </Tag>
+                  );
+                })}
+                {certifications && certifications.map(({certification}) => {
                   return (
                     <Tag key={`certification-${certification}-${Math.floor(Math.random() * 99999999)}`} color='gold'>
                       {certification.trim()}
@@ -418,14 +476,16 @@ export default function BlogDetail(){
 
     const handleSumbitCertificationOffShore = async (e) => {
         e.preventDefault()
-        if(certificationsAdded.length > 0) {
+        if(certificationsAdded.length > 0 && certificationExpireAt) {
+            setLoadingSendOtherCompetence(true);
             try {
-                const userOnline = await UserService.updateUser({certifications: certificationsAdded});
+                const userOnline = await UserService.updateUser({certifications: {certification: certificationsAdded[0], expire_at: certificationExpireAt.toISOString()}});
                 if(userOnline.etat) {
                     const {access_token, ...rest} = userOnline.result.client;
                     setUser(rest);
-                    
+                    setLoadingSendOtherCompetence(false);
                     setCertificationsAdded([]);
+                    setCertificationExpireAt(null);
                     
                 }
             } catch (error) {
@@ -440,14 +500,16 @@ export default function BlogDetail(){
 
     const handleSumbitCertificationOnShore = async (e) => {
         e.preventDefault()
-        if(certificationsOnShoreAdded.length > 0) {
+        if(certificationsOnShoreAdded.length > 0 && certificationOnShoreExpireAt) {
+            setLoadingSendSkill(true);
             try {
-                const userOnline = await UserService.updateUser({certificationsOnShore: certificationsOnShoreAdded});
+                const userOnline = await UserService.updateUser({certificationsOnShore: {certification: certificationsOnShoreAdded, expire_at: certificationOnShoreExpireAt.toISOString()}});
                 if(userOnline.etat) {
                     const {access_token, ...rest} = userOnline.result.client;
                     setUser(rest);
-                    
+                    setLoadingSendSkill(false);
                     setCertificationsOnShoreAdded([]);
+                    setCertificationOnShoreExpireAt(null);
                 
                 }
             } catch (error) {
@@ -562,6 +624,128 @@ export default function BlogDetail(){
         }
     }
 
+    const handleSubmitBirthInfo = async (e) => {
+        e.preventDefault();
+        if (birthDate && birthPlace) {
+            setLoadingSendBirthInfo(true);
+            try {
+                const userOnline = await UserService.updateUser({
+                    birthDate: birthDate.toISOString(),
+                    birthPlace
+                });
+                if (userOnline.etat) {
+                    const { access_token, ...rest } = userOnline.result.client;
+                    setUser(rest);
+                    setLoadingSendBirthInfo(false);
+                    setBirthDate(null);
+                    setBirthPlace(null);
+                }
+            } catch (error) {
+                const { response } = error;
+                for (const errorMessage of response.data.message) {
+                    openNotificationWithIcon({ type: 'error', message: 'Echec', description: errorMessage });
+                }
+            }
+        }
+    };
+
+    const handleSubmitExperience = async (e) => {
+        e.preventDefault();
+        if (position && company && beginAt) {
+            setLoadingSendExperience(true);
+            try {
+                const userOnline = await UserService.updateUser({
+                    experiences: { position, company, begin_at: beginAt.toISOString(), end_at: endAt ? endAt.toISOString() : null }
+                });
+                if (userOnline.etat) {
+                    const { access_token, ...rest } = userOnline.result.client;
+                    setUser(rest);
+                    setLoadingSendExperience(false);
+                    setPosition(null);
+                    setCompany(null);
+                    setBeginAt(null);
+                    setEndAt(null);
+                }
+            } catch (error) {
+                const { response } = error;
+                for (const errorMessage of response.data.message) {
+                    openNotificationWithIcon({ type: 'error', message: 'Echec', description: errorMessage });
+                }
+            }
+        }
+    };
+
+    const handleSubmitLanguage = async (e) => {
+        e.preventDefault();
+        if (title && written && spoken) {
+            setLoadingSendLanguage(true);
+            try {
+                const userOnline = await UserService.updateUser({
+                    languages: { title, written, spoken }
+                });
+                if (userOnline.etat) {
+                    const { access_token, ...rest } = userOnline.result.client;
+                    setUser(rest);
+                    setLoadingSendLanguage(false);
+                    setTitle(null);
+                    setWritten(null);
+                    setSpoken(null);
+                }
+            } catch (error) {
+                const { response } = error;
+                for (const errorMessage of response.data.message) {
+                    openNotificationWithIcon({ type: 'error', message: 'Echec', description: errorMessage });
+                }
+            }
+        }
+    };
+
+    const handleSubmitNationality = async (e) => {
+        e.preventDefault();
+        if (nationality) {
+            setLoadingSendNationality(true);
+            try {
+                const userOnline = await UserService.updateUser({
+                    nationality
+                });
+                if (userOnline.etat) {
+                    const { access_token, ...rest } = userOnline.result.client;
+                    setUser(rest);
+                    setLoadingSendNationality(false);
+                    setNationality("");
+                }
+            } catch (error) {
+                const { response } = error;
+                for (const errorMessage of response.data.message) {
+                    openNotificationWithIcon({ type: 'error', message: 'Echec', description: errorMessage });
+                }
+            }
+        }
+    };
+
+    const handleSubmitHelperContact = async (e) => {
+        e.preventDefault();
+        if (helperContact) {
+            setLoadingSendHelperContact(true);
+            try {
+                const userOnline = await UserService.updateUser({
+                    helperContact
+                });
+                if (userOnline.etat) {
+                    const { access_token, ...rest } = userOnline.result.client;
+                    setUser(rest);
+                    setLoadingSendHelperContact(false);
+                    setHelperContact(null);
+                }
+            } catch (error) {
+                const { response } = error;
+                for (const errorMessage of response.data.message) {
+                    openNotificationWithIcon({ type: 'error', message: 'Echec', description: errorMessage });
+                }
+            }
+        }
+    };
+
     const openNotificationWithIcon = ({type, message, description}) => {
         api[type]({
           message,
@@ -584,7 +768,7 @@ export default function BlogDetail(){
                             {loadedUser && user &&
                             <>
                             <Avatar
-                            size={{ xs: 24, sm: 32, md: 40, lg: 64, xl: 80, xxl: 100 }}
+                            size={{ xs: 94, sm: 102, md: 110, lg: 124, xl: 130, xxl: 150 }}
                             src={`${baseUrlAssetLogos}/${user.profil}`}
                             />
                             <h5 className="heading fw-semibold mb-0 sub-heading text-white title-dark mt-1">{user.fullName}</h5>
@@ -645,15 +829,50 @@ export default function BlogDetail(){
                                     <div className="container mt-3">
                                         <div className='row'>
                                             <div className='col-md-3'>
-                                            <Dragger {...props}>
-                                                <p className="ant-upload-drag-icon">
-                                                <InboxOutlined />
-                                                </p>
-                                                <p className="ant-upload-text">Cliquez ou faites glisser votre cv ici</p>
-                                                <p className="ant-upload-hint">
-                                                Prise en charge uniquement de pdf.
-                                                </p>
-                                            </Dragger>
+                                                <div className="text-center">
+                                                    <h6 className="pb-1 bg-light rounded-3">Infos naissance</h6>
+                                                    <ul className="tagcloud list-unstyled mt-1">
+                                                        
+                                                        {user && user.birthDate && <li key={`birthDate_${Math.floor(Math.random() * 99999999)}`} className="list-inline-item m-1"><Link href="#" className="rounded-3 fw-medium text-dark inline-block py-2 px-3">{formatDate(user.birthDate)}</Link></li>}
+                                                        {user && user.birthPlace && <li key={`birthPlace_${Math.floor(Math.random() * 99999999)}`} className="list-inline-item m-1"><Link href="#" className="rounded-3 fw-medium text-dark inline-block py-2 px-3">{user.birthPlace}</Link></li>}
+                                                    </ul>
+                                                    <Box width={'100%'}>
+                                                        <Stack direction='row' spacing={2} alignItems='center' justifyContent='space-between'>
+                                                            <DatePicker 
+                                                                style={{ width: '100%' }} 
+                                                                value={birthDate} 
+                                                                placeholder="Date de naissance" 
+                                                                onChange={(date) => setBirthDate(date)} 
+                                                            />
+                                                            <Input
+                                                                style={{ width: '100%' }}
+                                                                value={birthPlace}
+                                                                placeholder="Lieu de naissance"
+                                                                onChange={(e) => setBirthPlace(e.target.value)}
+                                                            />
+                                                        </Stack>
+                                                    </Box>
+                                                    <div className='mt-3 mb-3'>
+                                                        {birthDate && birthPlace && <button 
+                                                            className={"btn w-100 " + (loadingSendBirthInfo ? 'btn-light' : 'btn-primary')} 
+                                                            type="button" 
+                                                            onClick={handleSubmitBirthInfo}
+                                                        >
+                                                            {loadingSendBirthInfo ? <Spin /> : 'Ajouter Informations'}
+                                                        </button>}
+                                                    </div>
+                                                </div>
+                                                <Box component={'div'} sx={{maxHeight: 110}}>
+                                                    <Dragger {...props}>
+                                                        <p className="ant-upload-drag-icon">
+                                                        <InboxOutlined />
+                                                        </p>
+                                                        <p className="ant-upload-text">Cliquez ou faites glisser votre cv ici</p>
+                                                        <p className="ant-upload-hint">
+                                                        Prise en charge uniquement de pdf.
+                                                        </p>
+                                                    </Dragger>
+                                                </Box>
                                             </div>
                                             <div className='col-md-3'>
                                                 <div className="text-center">
@@ -746,25 +965,31 @@ export default function BlogDetail(){
                                                     </div>
                                                 </div>
                                                 <div className="mt-2 text-center">
-                                                    <h6 className="pb-1 bg-light rounded-3">Diplome et certifications sur terres</h6>
+                                                    <h6 className="pb-1 bg-light rounded-3">Diplôme et certifications</h6>
                                                     <ul className="tagcloud list-unstyled mt-1">
                                                         
-                                                        {user && user.certifications.length > 0 && user.certifications.map((certification, index) => <li key={`certification-${index}_${Math.floor(Math.random() * 99999999)}`} className="list-inline-item m-1"><Link href="#" className="rounded-3 fw-medium text-dark inline-block py-2 px-3">{certification}</Link></li>)}
+                                                        {user && user.certifications.length > 0 && user.certifications.map(({certification}, index) => <li key={`certification-${index}_${Math.floor(Math.random() * 99999999)}`} className="list-inline-item m-1"><Link href="#" className="rounded-3 fw-medium text-dark inline-block py-2 px-3">{certification}</Link></li>)}
 
 
                                                     </ul>
 
-                                                        <Select
-                                                        mode="tags"
-                                                        allowClear
-                                                        style={{
-                                                            width: '100%',
-                                                        }}                                                        
-                                                        value={certificationsAdded}
-                                                        placeholder="Ajouter des certifications"
-                                                        onChange={handleChangeCertificationOffShore}
-                                                        options={certificationsLocal}
-                                                    />
+                                                    <Box width={'100%'}>
+                                                        <Stack direction='column' spacing={2} alignItems='center' justifyContent='center'>
+                                                            <Select
+                                                            maxCount={1}
+                                                                mode="tags"
+                                                                allowClear
+                                                                style={{
+                                                                    width: '100%',
+                                                                }}                                                        
+                                                                value={certificationsAdded}
+                                                                placeholder="Certifications"
+                                                                onChange={handleChangeCertificationOffShore}
+                                                                options={certificationsLocal}
+                                                            />
+                                                            <DatePicker onChange={handleChangeExpireAtCertification} placeholder="Date d'expiration" value={certificationExpireAt} style={{width: '100%'}} />
+                                                        </Stack>
+                                                    </Box>
                                                     <div className='mt-3 mb-3'>
                                                     {certificationsAdded.length > 0 && <button className={"btn w-100 " + (loadingSendOtherCompetence ? 'btn-light' : 'btn-primary')} type="button" onClick={handleSumbitCertificationOffShore}> {loadingSendOtherCompetence ? <Spin /> : 'Terminer'}</button>}
                                                     
@@ -793,24 +1018,30 @@ export default function BlogDetail(){
                                                     availableOffShore &&
                                                     (
                                                         <div className="mt-2 text-center">
-                                                            <h6 className="pb-1 bg-light rounded-3">Certifications en mer</h6>
+                                                            <h6 className="pb-1 bg-light rounded-3">Certifications</h6>
                                                             <ul className="tagcloud list-unstyled mt-1">
                                                                 
-                                                            {user && user.certificationsOnShore.length > 0 && user.certificationsOnShore.map((certification, index) => <li key={`certificationOnShore-${index}_${Math.floor(Math.random() * 99999999)}`} className="list-inline-item m-1"><Link href="#" className="rounded-3 fw-medium text-dark inline-block py-2 px-3">{certification}</Link></li>)}
+                                                            {user && user.certificationsOnShore.length > 0 && user.certificationsOnShore.map(({certification}, index) => <li key={`certificationOnShore-${index}_${Math.floor(Math.random() * 99999999)}`} className="list-inline-item m-1"><Link href="#" className="rounded-3 fw-medium text-dark inline-block py-2 px-3">{certification}</Link></li>)}
 
 
                                                             </ul>
-                                                                <Select
-                                                                mode='multiple'
-                                                                allowClear
-                                                                style={{
-                                                                    width: '100%',
-                                                                }}                                                        
-                                                                value={certificationsOnShoreAdded}
-                                                                placeholder="Choisissez vos certifications reçu"
-                                                                onChange={handleChangeCertificationOnShore}
-                                                                options={certifications}
-                                                            />
+                                                            <Box width={'100%'}>
+                                                                <Stack direction='column' spacing={2} alignItems='center' justifyContent='center'>
+                                                                    <Select
+                                                                        
+                                                                        allowClear
+                                                                        style={{
+                                                                            width: '100%',
+                                                                        }}                                                        
+                                                                        value={certificationsOnShoreAdded}
+                                                                        placeholder="Certifications reçu"
+                                                                        onChange={handleChangeCertificationOnShore}
+                                                                        options={certifications}
+                                                                    />
+                                                                    <DatePicker onChange={handleChangeExpireAtCertificationOnShore} placeholder="Date d'expiration" value={certificationOnShoreExpireAt} style={{width: '100%'}} />
+                                                                </Stack>
+                                                            </Box>
+                                                                
                                                             <div className='mt-3 mb-3'>
                                                             {certificationsOnShoreAdded.length > 0 && <button className={"btn w-100 " + (loadingSendSkill ? 'btn-light' : 'btn-primary')} type="button" onClick={handleSumbitCertificationOnShore}> {loadingSendSkill ? <Spin /> : 'Terminer'}</button>}
                                                             
@@ -830,12 +1061,17 @@ export default function BlogDetail(){
                                                                 )
                                                                 :
                                                                 (
-                                                                    <div className="form-floating mb-2">
-                                                                        <input type="number" name="yearsExperience" onChange={(e)=>{
-                                                                            setYearsExperience(e.target.value);
-                                                                        }} value={yearsExperience} className="form-control" id="floatingPhoneNumber"/>
-                                                                        <label htmlFor="floatingPhoneNumber">Combien d'année d'expérience avez-vous</label>
-                                                                    </div>
+                                                                    <Select
+                                                                        
+                                                                        allowClear
+                                                                        style={{
+                                                                            width: '100%',
+                                                                        }}                                                        
+                                                                        value={yearsExperience}
+                                                                        placeholder="Combien d'année d'expérience avez-vous"
+                                                                        onChange={(value) => {setYearsExperience(value)}}
+                                                                        options={Array.from({ length: 20 }, (_, i) => ({ label: `${i+1} année${i+1>1 ? 's':''}`, value: (i+1).toString() }))}
+                                                                    />
                                                                 )
                                                             }
 
@@ -856,10 +1092,270 @@ export default function BlogDetail(){
 
                                     </div>
 
-                                    <div className="card-body">
+                                    <div className="card-body mt-4">
                                         
+                                    <div className="container">
+                                        <div className="row">
+                                            <div className="col-md-4">
+                                                <div className="text-center">
+                                                    <h6 className="pb-1 bg-light rounded-3">Expériences professionnelles</h6>
+                                                    {user && user.experiences.length > 0 ? user.experiences.map((experience, index) => (
+                                                        <Accordion sx={{mb: 2}}>
+                                                            <AccordionSummary
+                                                                expandIcon={<ExpandMoreIcon />}
+                                                                aria-controls={`panel3-content-experience-${index}`}
+                                                                id={`panel3-header-experience-${index}`}
+                                                            >
+                                                                <Typography component="span">{experience.position}</Typography>
+                                                            </AccordionSummary>
+                                                            <AccordionDetails>
+                                                                <Timeline
+                                                                    items={[
+                                                                        {
+                                                                            color: 'blue',
+                                                                            dot: <BankOutlined />,
+                                                                            position:'left',
+                                                                            children: (
+                                                                                <Typo>
+                                                                                    <Title level={5}>Entreprise</Title>
+                                                                                    <Paragraph>
+                                                                                        <Text>{experience.company}</Text>
+                                                                                    </Paragraph>
+                                                                                </Typo>
+                                                                            )
+                                                                        },
+                                                                        {
+                                                                            color: 'green',
+                                                                            dot: <CalendarOutlined />,
+                                                                            position:'left',
+                                                                            children: (
+                                                                                <Typo>
+                                                                                    <Title level={5}>Date de début</Title>
+                                                                                    <Paragraph>
+                                                                                        <Text>{formatDate(experience.begin_at)}</Text>
+                                                                                    </Paragraph>
+                                                                                </Typo>
+                                                                            )
+                                                                        },
+                                                                        {
+                                                                            color: 'red',
+                                                                            dot: <CalendarOutlined />,
+                                                                            position:'left',
+                                                                            children: (
+                                                                                <Typo>
+                                                                                    <Title level={5}>Date de fin</Title>
+                                                                                    <Paragraph>
+                                                                                        <Text>{experience.end_at ? formatDate(experience.end_at) : 'y travail encore'}</Text>
+                                                                                    </Paragraph>
+                                                                                </Typo>
+                                                                            )
+                                                                        },
+
+                                                                    ]}
+                                                                />
+                                                            </AccordionDetails>
+                                                            {/* <AccordionActions>
+                                                                <Button>Cancel</Button>
+                                                                <Button>Agree</Button>
+                                                            </AccordionActions> */}
+                                                    </Accordion>
+                                                    )):
+                                                    (
+                                                        <Empty style={{marginBottom: 10}} description={
+                                                            <Typo.Text>
+                                                            Aucune expérience professionnel renseignée
+                                                            </Typo.Text>
+                                                        } />
+                                                    )}
+
+                                                    <Box width={'100%'} sx={{mt: 2}}>
+                                                        <h6 className="pb-1 bg-light rounded-3">Ajouter une nouvelle expérience</h6>
+                                                        <Input style={{marginBottom: 5}} type="text" name="position" id="position"
+                                                                    value={position}
+                                                                    placeholder="Poste occupé"
+                                                                    onChange={(e) => setPosition(e.target.value)}
+                                                                />
+                                                            <Input style={{marginBottom: 5}} type="text" name="company" id="company"
+                                                                    value={company}
+                                                                    placeholder="Nom de l'entreprise"
+                                                                    onChange={(e) => setCompany(e.target.value)}
+                                                                />
+                                                            
+                                                            <DatePicker 
+                                                                onChange={(date) => setBeginAt(date)} 
+                                                                placeholder="Date de début" 
+                                                                value={beginAt} 
+                                                                style={{ width: '100%', marginBottom: 5 }} 
+                                                            />
+                                                            <DatePicker 
+                                                                onChange={(date) => setEndAt(date)} 
+                                                                placeholder="Date de fin" 
+                                                                value={endAt} 
+                                                                style={{ width: '100%', marginBottom: 5 }} 
+                                                            />
+                                                    </Box>
+                                                    <div className='mt-3 mb-3'>
+                                                        {position && company && beginAt && <button 
+                                                            className={"btn w-100 " + (loadingSendExperience ? 'btn-light' : 'btn-primary')} 
+                                                            type="button" 
+                                                            onClick={handleSubmitExperience}
+                                                        >
+                                                            {loadingSendExperience ? <Spin /> : 'Ajouter Expérience'}
+                                                        </button>}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div className="col-md-4">
+                                                <div className="text-center">
+                                                    <h6 className="pb-1 bg-light rounded-3">Langues</h6>
+                                                    {user && user.languages.length > 0 ? user.languages.map((language, index) => (
+                                                        <Accordion sx={{mb: 2}}>
+                                                            <AccordionSummary
+                                                                expandIcon={<ExpandMoreIcon />}
+                                                                aria-controls={`panel3-content-${index}`}
+                                                                id={`panel3-header-${index}`}
+                                                            >
+                                                                <Typography component="span">{language.title}</Typography>
+                                                            </AccordionSummary>
+                                                            <AccordionDetails>
+                                                                <Timeline
+                                                                    items={[
+                                                                        {
+                                                                            color: 'blue',
+                                                                            dot: <EditOutlined />,
+                                                                            position:'left',
+                                                                            children: (
+                                                                                <Typo>
+                                                                                    <Title level={5}>À l'écrit</Title>
+                                                                                    <Paragraph>
+                                                                                        <Text>{language.written === 'A' ? 'Très bien': language.written === 'B' ? 'Bien': 'Pas du tout'}</Text>
+                                                                                    </Paragraph>
+                                                                                </Typo>
+                                                                            )
+                                                                        },
+                                                                        {
+                                                                            color: 'green',
+                                                                            dot: <SmileOutlined />,
+                                                                            position:'left',
+                                                                            children: (
+                                                                                <Typo>
+                                                                                    <Title level={5}>À l'oral</Title>
+                                                                                    <Paragraph>
+                                                                                        <Text>{language.spoken === 'A' ? 'Très bien': language.spoken === 'B' ? 'Bien': 'Pas du tout'}</Text>
+                                                                                    </Paragraph>
+                                                                                </Typo>
+                                                                            )
+                                                                        },
+
+                                                                    ]}
+                                                                />
+                                                            </AccordionDetails>
+                                                            
+                                                    </Accordion>
+                                                    )):
+                                                    (
+                                                        <Empty style={{marginBottom: 10}} description={
+                                                            <Typo.Text>
+                                                            Aucune langue renseignée
+                                                            </Typo.Text>
+                                                        } />
+                                                    )}
+
+                                                    <Box width={'100%'} sx={{mt: 2}}>
+                                                    <h6 className="pb-1 bg-light rounded-3">Ajouter une nouvelle langue</h6>
+                                                        <Stack direction='column' spacing={2} alignItems='center' justifyContent='center'>
+                                                            <Select
+                                                                style={{ width: '100%' }}
+                                                                value={title}
+                                                                placeholder="Sélectionnez une langue"
+                                                                onChange={(value) => setTitle(value)}
+                                                                options={languageOptions}
+                                                            />
+                                                            <Select
+                                                                style={{ width: '100%' }}
+                                                                value={written}
+                                                                placeholder="Niveau écrit"
+                                                                onChange={(value) => setWritten(value)}
+                                                                options={valueWrittenAndSpoken}
+                                                            />
+                                                            <Select
+                                                                style={{ width: '100%' }}
+                                                                value={spoken}
+                                                                placeholder="Niveau oral"
+                                                                onChange={(value) => setSpoken(value)}
+                                                                options={valueWrittenAndSpoken}
+                                                            />
+                                                        </Stack>
+                                                    </Box>
+                                                    <div className='mt-3 mb-3'>
+                                                        {title && written && spoken && <button 
+                                                            className={"btn w-100 " + (loadingSendLanguage ? 'btn-light' : 'btn-primary')} 
+                                                            type="button" 
+                                                            onClick={handleSubmitLanguage}
+                                                        >
+                                                            {loadingSendLanguage ? <Spin /> : 'Ajouter Langue'}
+                                                        </button>}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div className="col-md-4">
+                                                <div className="text-center">
+                                                    <h6 className="pb-1 bg-light rounded-3">Nationalité</h6>
+                                                    {user && user.nationality && <Typography component="span">{user.nationality}</Typography>}
+
+                                                    <Box width={'100%'}>
+                                                        <Stack direction='column' spacing={2} alignItems='center' justifyContent='center'>
+                                                            <Input
+                                                                style={{ width: '100%' }}
+                                                                value={nationality}
+                                                                placeholder="Saisissez votre nationalité"
+                                                                onChange={(e) => setNationality(e.target.value)}
+                                                            />
+                                                        </Stack>
+                                                    </Box>
+                                                    <div className='mt-3 mb-3'>
+                                                        {nationality && <button 
+                                                            className={"btn w-100 " + (loadingSendNationality ? 'btn-light' : 'btn-primary')} 
+                                                            type="button" 
+                                                            onClick={handleSubmitNationality}
+                                                        >
+                                                            {loadingSendNationality ? <Spin /> : 'Ajouter Nationalité'}
+                                                        </button>}
+                                                    </div>
+                                                </div>
+                                                <div className="mt-2 text-center">
+                                                    <h6 className="pb-1 bg-light rounded-3">Autre contact</h6>
+                                                    {user && user.helperContact && <Typography component="span">{user.helperContact}</Typography>}
+
+                                                    <Box width={'100%'} sx={{mt: 2}}>
+                                                        <Stack direction='column' spacing={2} alignItems='center' justifyContent='center'>
+                                                            <Input
+                                                                style={{ width: '100%' }}
+                                                                value={helperContact}
+                                                                placeholder="Un autre numéro à joindre en cas d'urgence"
+                                                                onChange={(e) => setHelperContact(e.target.value)}
+                                                            />
+                                                        </Stack>
+                                                    </Box>
+                                                    <div className='mt-3 mb-3'>
+                                                        {helperContact && <button 
+                                                            className={"btn w-100 " + (loadingSendHelperContact ? 'btn-light' : 'btn-primary')} 
+                                                            type="button" 
+                                                            onClick={handleSubmitHelperContact}
+                                                        >
+                                                            {loadingSendHelperContact ? <Spin /> : "Ajouter contact d'urgence"}
+                                                        </button>}
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                        </div>
+                                        
+
+                                        
+                                    </div>
                                     
-                                        <blockquote className="text-center mx-auto blockquote"><i className="mdi mdi-format-quote-open mdi-48px text-muted opacity-2 d-block"></i> Je suis un jeune passionné et sachant travailler sous pression.<small className="d-block text-muted mt-2">- Intro</small></blockquote>
+                                        {/* <blockquote className="text-center mx-auto blockquote"><i className="mdi mdi-format-quote-open mdi-48px text-muted opacity-2 d-block"></i> Je suis un jeune passionné et sachant travailler sous pression.<small className="d-block text-muted mt-2">- Intro</small></blockquote> */}
                                                                 
                                         {/* <Link href="#" className="badge badge-link bg-primary ms-1">Minimal</Link>
                                         <Link href="#" className="badge badge-link bg-primary ms-1">Interior</Link>

@@ -101,7 +101,7 @@ export default function ContactUs(){
                             <div className="mt-4">
                                 <h5 className="mb-3">Numéro de téléphone</h5>
                                 <p className="text-muted">Disponible du lundi au vendredi de 09h à 17H</p>
-                                <Link href="tel:+152534-468-854" className="text-primary">+225 XXXX-XXX-XXX</Link>
+                                <Link href="tel:+225212725005" className="text-primary">+225 21 27 2 50 05</Link>
                             </div>
                         </div>
                     </div>
@@ -118,7 +118,7 @@ export default function ContactUs(){
                             <div className="mt-4">
                                 <h5 className="mb-3">Email</h5>
                                 <p className="text-muted">Disponible du lundi au vendredi de 09h à 17H</p>
-                                <Link href="mailto:info@icmemployment.net" className="text-primary">info@icmemployment.net</Link>
+                                <Link href="mailto:employmentcenter@holding.com" className="text-primary">employmentcenter@holding.com</Link>
                             </div>
                         </div>
                     </div>

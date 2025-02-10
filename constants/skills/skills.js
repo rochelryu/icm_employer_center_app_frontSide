@@ -79,6 +79,7 @@ export const contractType = [
   { label: "CDI", value: "CDI" },
   { label: "CDD", value: "CDD" },
   { label: "Intérim", value: "Intérim" },
+  { label: "Stage", value: "Stage" },
 ]
 
 export const degreeAccademy = [

@@ -193,7 +193,7 @@ export default function DetailFormation(){
                 <div className="row justify-content-center">
                     <div className="col">
                         <div className="section-title text-center mb-4 pb-2">
-                            <h4 className="title mb-3">Autre emploi</h4>
+                            <h4 className="title mb-3">Autre formations</h4>
                         </div>
                     </div>
                 </div>
