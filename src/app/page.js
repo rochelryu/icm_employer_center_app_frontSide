@@ -13,12 +13,17 @@ import PropertyTwo from "./components/propertyTwo";
 import GetInTuch from "./components/getInTuch";
 import CategoriesTwo from "./components/categoriesTwo";
 import JobOfferService from "../../services/jobOfferService";
+import TrainingService from "../../services/trainingService";
+import { formatDate } from "../../utils/date/horodatage";
+import {baseUrlAssetFormations} from "../../constants/serveur/serveur";
 // import Blog from "./components/blog";
 import { useRouter } from 'next/navigation';
+import { Flex } from "antd";
 
 export default function IndexSix(){
     const router = useRouter();
-    const [jobs, setJobs] = useState([])
+    const [jobs, setJobs] = useState([]);
+    const [formations, setFormations] = useState([]);
     const [search, setSearch] = useState('')
 
     useEffect(() => {
@@ -26,8 +31,10 @@ export default function IndexSix(){
     }, []);
 
     const loadData = async () => {
-        const response = await JobOfferService.getJobOfferAvailable();
-        setJobs(response.result)
+        const {result: limitJobsAvailable} = await JobOfferService.getJobOfferAvailable({limit: 8});
+        const {result: limitTrainingAvailable} = await TrainingService.getTrainings({limit: 8});
+        setJobs(limitJobsAvailable);
+        setFormations(limitTrainingAvailable);
     }
 
 
@@ -73,47 +80,89 @@ export default function IndexSix(){
                 </div>
 
                 <div className="container mt-100 mt-60">
-                <div className="row align-items-center">
-                    <div className="col-lg-6 col-md-6">
-                        <div className="about-left">
-                            <div className="position-relative shadow p-2 rounded-top-pill rounded-5 bg-white img-one">
-                                <Image src='/images/hero.jpg' width={0} height={0} sizes="100vw" style={{width:'100%', height:'auto'}} className="img-fluid rounded-top-pill rounded-5" alt=""/>
-    
-                                {/* <VideoOne/> */}
+                    <div className="row align-items-center">
+                        <div className="col-lg-5 col-md-5">
+                            <div className="about-left">
+                                <div className="position-relative shadow p-2 rounded-top-pill rounded-5 bg-white img-one">
+                                    <Image src='/images/hero.jpg' width={0} height={0} sizes="100vw" style={{width:'100%', height:'auto'}} className="img-fluid rounded-top-pill rounded-5" alt=""/>
+        
+                                    {/* <VideoOne/> */}
 
-                                {/* <div className="position-absolute top-0 start-0 z-n1">
-                                    <Image src="/images/svg/dots.svg" width={0} height={0} sizes="100vw" style={{width:'100%', height:'auto'}} className="avatar avatar-xl-large" alt=""/>
-                                </div> */}
+                                    {/* <div className="position-absolute top-0 start-0 z-n1">
+                                        <Image src="/images/svg/dots.svg" width={0} height={0} sizes="100vw" style={{width:'100%', height:'auto'}} className="avatar avatar-xl-large" alt=""/>
+                                    </div> */}
+                                </div>
+
+                                <div className="img-two shadow rounded-3 overflow-hidden p-2 bg-white">
+                                    <Image src="/images/1.jpg" width={0} height={0} sizes="100vw" style={{width:'100%', height:'auto'}} className="img-fluid rounded-3" alt=""/>
+                                </div>
                             </div>
+                        </div>
 
-                            <div className="img-two shadow rounded-3 overflow-hidden p-2 bg-white">
-                                <Image src="/images/1.jpg" width={0} height={0} sizes="100vw" style={{width:'100%', height:'auto'}} className="img-fluid rounded-3" alt=""/>
+                        <div className="col-lg-7 col-md-7 mt-4 mt-sm-0 pt-2 pt-sm-0">
+                            <div className="section-title ms-lg-5">
+                                <h6 className="text-primary fw-medium mb-2">Les meilleurs programmes & formations</h6>
+                                <h4 className="title mb-3">Venez apprendre avec nos professionnel du metier,<br/> monter rapidement en expérience</h4>
+                                <p className="text-muted para-desc mb-0">+400 formations</p>
+                            
+                                
                             </div>
                         </div>
                     </div>
+                </div>
+                <div className="container mt-100 mt-60">
+                    <div className="row align-items-center">
+                    {formations.map((item, index) =>{
+                                    return(
+                                        <div className="col-lg-4 col-md-4 col-sm-6 col-12" key={`formation_${index}`}>
+                                            <div className="card property border-0 shadow position-relative overflow-hidden rounded-3">
+                                                <div className="property-image position-relative overflow-hidden shadow">
+                                                    <Image src={`${baseUrlAssetFormations}/${item.cover}`} width={0} height={0} sizes="100vw" style={{width:'100%', height:'auto'}} className="img-fluid" alt=""/>
+                                                    
+                                                </div>
+                                                <div className="card-body content p-4">
+                                                    <Link href={`/formations/${item._id}`} className="title fs-5 text-dark fw-medium">{item.title}</Link>
 
-                    <div className="col-lg-6 col-md-6 mt-4 mt-sm-0 pt-2 pt-sm-0">
-                        <div className="section-title ms-lg-5">
-                            <h6 className="text-primary fw-medium mb-2">Les meilleurs programmes & formations</h6>
-                            <h4 className="title mb-3">Venez apprendre avec nos professionnel du metier,<br/> monter rapidement en expérience</h4>
-                            <p className="text-muted para-desc mb-0">+400 formations</p>
-                        
-                            <div className="mt-4">
+                                                    <ul className="list-unstyled mt-3 py-3 border-top border-bottom d-flex align-items-center justify-content-between">
+                                                        <li className="d-flex align-items-center me-3">
+                                                            <i className="mdi mdi mdi-account-group-outline fs-5 me-2 text-primary"></i>
+                                                            <span className="text-muted">{item.participants.length}</span>
+                                                        </li>
+                                                        
+                                                        <li className="d-flex align-items-center me-3">
+                                                            <i className="mdi mdi mdi-map-marker fs-5 me-2 text-primary"></i>
+                                                            <span className="text-muted">{item.location}</span>
+                                                        </li>
+                                                    </ul>
+                                                    <ul className="list-unstyled d-flex justify-content-between mt-2 mb-0">
+                                                        <li className="list-inline-item mb-0">
+                                                            <span className="text-muted">Debut</span>
+                                                            <p className="fw-medium mb-0">{formatDate(item.startDate)}</p>
+                                                        </li>
+                                                        <li className="list-inline-item mb-0 ">
+                                                            <span className="text-muted text-end">Fin</span>
+                                                            <p className="fw-medium mb-0">{formatDate(item.endDate)}</p>
+                                                        </li>
+                                                    </ul>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    )
+                                })}
+                                <Flex align="center" justify="center" style={{marginTop: 20, width: '100%'}}>
                                 <Link href="/formations" className="btn btn-pills btn-primary">En savoir plus <i className="mdi mdi-arrow-right align-middle"></i></Link>
-                            </div>
+                                </Flex>
+                    </div>
+                </div>
+
+                <div className="container-fluid mt-100 mt-60">
+                    <div className="position-relative overflow-hidden rounded-3 shadow py-5" style={{backgroundImage:"url('/images/bg/05.jpg')",backgroundPosition:'center' , backgroundAttachment:'fixed'}}>
+                        <div className="bg-overlay"></div>
+                        <div className="container">
+                            <Counter/>
                         </div>
                     </div>
                 </div>
-            </div>
-
-            <div className="container-fluid mt-100 mt-60">
-                <div className="position-relative overflow-hidden rounded-3 shadow py-5" style={{backgroundImage:"url('/images/bg/05.jpg')",backgroundPosition:'center' , backgroundAttachment:'fixed'}}>
-                    <div className="bg-overlay"></div>
-                    <div className="container">
-                        <Counter/>
-                    </div>
-                </div>
-            </div>
 
             {/* <div className="container mt-100 mt-60">
                 <Broker/>

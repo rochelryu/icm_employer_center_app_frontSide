@@ -24,10 +24,28 @@ class JobOfferService {
             }
         }
 
+        static async updateJob({title, description, location, contractType, salaryRange, skills, onShore, _id}) {
+            try {
+                const response = await apiService.put(this.baseURL, {title, description, location, contractType, salaryRange, skills, onShore, _id});
+                return response.data;
+            } catch (error) {
+                throw error; // Laisser l'erreur remonter
+            }
+        }
+
     static async getDetailsJob({_id, authenticate, overview}) {
         try {
             const authUrl = authenticate ? '/authenticate' : ''
             const response = await apiService.get(`${this.baseURL}/${_id}${authUrl}?overview=${overview}`);
+            return response.data;
+        } catch (error) {
+            throw error; // Laisser l'erreur remonter
+        }
+    }
+
+    static async deleteJob({_id}) {
+        try {
+            const response = await apiService.delete(`${this.baseURL}/${_id}`);
             return response.data;
         } catch (error) {
             throw error; // Laisser l'erreur remonter

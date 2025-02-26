@@ -96,7 +96,7 @@ export default function GridSidebar(){
                         <div className="row g-4">
                             {trainings.map((item, index) =>{
                                 return(
-                                <div className="col-lg-6 col-12" key={index}>
+                                <div className="col-lg-6 col-12" key={`formation_${index}`}>
                                     <div className="card property border-0 shadow position-relative overflow-hidden rounded-3">
                                         <div className="property-image position-relative overflow-hidden shadow">
                                             <Image src={`${baseUrlAssetFormations}/${item.cover}`} width={0} height={0} sizes="100vw" style={{width:'100%', height:'auto'}} className="img-fluid" alt=""/>

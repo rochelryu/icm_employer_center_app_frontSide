@@ -14,7 +14,8 @@ import DoDisturbOffTwoToneIcon from '@mui/icons-material/DoDisturbOffTwoTone';
 import MoreHorizIcon from '@mui/icons-material/MoreHoriz'
 import LocalService from "../../../services/localStorageService";
 import { InboxOutlined } from '@ant-design/icons';
-import { Button, message, Upload, Select, Spin, Tag, Space, Table, Typography as Typo, Menu, Flex, Dropdown, Divider, notification, Badge, Avatar, Radio, DatePicker, Input, Empty, Timeline } from 'antd';
+import ImgCrop from 'antd-img-crop';
+import { Button, message, Select, Spin, Tag, Space, Table, Typography as Typo, Menu, Flex, Dropdown, Divider, notification, Badge, Avatar, Radio, DatePicker, Input, Empty, Timeline, Tooltip, Modal, Upload } from 'antd';
 import UserService from "../../../services/userService";
 import JobOfferService from "../../../services/jobOfferService";
 import CandidatureService from "../../../services/candidatureService";
@@ -31,13 +32,13 @@ import {
     BankOutlined,
     CalendarOutlined,
     EditOutlined,
-    SmileOutlined
+    SmileOutlined,
+    DeleteOutlined,
   } from '@ant-design/icons';
 import { formatDate, horodatage } from "../../../utils/date/horodatage";
-import { Typography, Box, Stack } from "@mui/material";
+import { Typography, Box, Stack, Grid2 as Grid } from "@mui/material";
 
 import Accordion from '@mui/material/Accordion';
-import AccordionActions from '@mui/material/AccordionActions';
 import AccordionSummary from '@mui/material/AccordionSummary';
 import AccordionDetails from '@mui/material/AccordionDetails';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
@@ -46,7 +47,7 @@ const initialForm = {
     title: '',
     description: null,
     location: '',
-    contractType: null,
+    contractType: [],
     salaryRange: '',
     onShore: false
 
@@ -65,6 +66,22 @@ const optionsAvailableOffShore = [
 
 export default function BlogDetail(){
     const editorRef = useRef(null);
+    const targetRef = useRef(null);
+
+    const [openModal, setOpenModal] = useState(false);
+    const [openModalDeleteJob, setOpenModalDeleteJob] = useState(false);
+    const [formPersonalValues, setFormPersonalValues] = useState({
+            fullName: '',
+            phoneNumber: '',
+            email: '',
+            website: '',
+            industry: null,
+            location: '',
+            logo: '',
+            logoName: '',
+    });
+    const [selectJob, setSelectJob] = useState({});
+    const [fileList, setFileList] = useState([]);
     const [api, contextHolder] = notification.useNotification();
     const router = useRouter();
     const [formValues, setFormValues] = useState(initialForm);
@@ -85,6 +102,7 @@ export default function BlogDetail(){
     const [stateCreateJob, setStateCreateJob] = useState(false);
     const [isEditDomaine, setIsEditDomaine] = useState(false);
     const [isEditDegree, setIsEditDegree] = useState(false);
+    const [isEditJob, setIsEditJob] = useState(false);
     const [isEditYearExperience, setIsEditYearExperience] = useState(false);
     const [loadingSendOtherCompetence, setLoadingSendOtherCompetence] = useState(false);
     const [loadingSendSkill, setLoadingSendSkill] = useState(false);
@@ -118,6 +136,21 @@ export default function BlogDetail(){
     const [birthPlace, setBirthPlace] = useState(null);
     const [loadingSendBirthInfo, setLoadingSendBirthInfo] = useState(false);
 
+    const scrollToTarget = () => {
+        if (targetRef.current) {
+          targetRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
+        }
+      };
+
+
+    const toogleModal = () => {
+        setOpenModal(!openModal);
+      };
+
+      const toogleModalDeleteJob = () => {
+        setOpenModalDeleteJob(!openModalDeleteJob);
+      };
+
 
 
     useEffect(() => {
@@ -137,6 +170,60 @@ export default function BlogDetail(){
             ]);
         }
     }, [user]);
+
+    const handleChange = (e) => {
+        const { name, value } = e.target;
+        setFormPersonalValues({
+            ...formPersonalValues,
+            [name]: value // Mise à jour dynamique basée sur le `name` du champ
+        });
+    };
+
+    const handleSubmitPersonnalInfo = async (e) => {
+        e.preventDefault();
+        try {
+            messageApi.loading("Modification en cours")
+            const userOnline = await UserService.updateUser({...formPersonalValues});
+            messageApi.destroy();
+            if (userOnline.etat) {
+                const { access_token, ...rest } = userOnline.result.client;
+                const oldUser = user;
+                setUser({...rest, candidatures: oldUser?.candidatures ?? []});
+                toogleModal();
+                setFileList([]);
+                setFormPersonalValues({
+                    ...formPersonalValues,
+                    logo: '',
+                    logoName: ''
+                });
+                openNotificationWithIcon({type: 'success', message: 'Profil modifié', description: "Vos informations personnelles ont été modifié"})
+            }
+        } catch (error) {
+            const { response } = error;
+            for (const errorMessage of response.data.message) {
+                openNotificationWithIcon({ type: 'error', message: 'Echec', description: errorMessage });
+            }
+        }
+    };
+
+    const handleDeleteJob = async (e) => {
+        e.preventDefault();
+        try {
+            messageApi.loading("Suppression en cours")
+            const deleteJob = await JobOfferService.deleteJob({_id: selectJob._id});
+            
+            if (deleteJob.etat) {
+                await getUser();
+                messageApi.destroy();
+                messageApi.success("Offre supprimée")
+            }
+        } catch (error) {
+            const { response } = error;
+            for (const errorMessage of response.data.message) {
+                openNotificationWithIcon({ type: 'error', message: 'Echec', description: errorMessage });
+            }
+        }
+    };
 
 
 
@@ -253,9 +340,9 @@ export default function BlogDetail(){
             dataIndex: 'domaines',
             render: (_, { domaines, yearExperience }) => (
               <>
-                {domaines.map((domaine) => {
+                {domaines.map((domaine, index) => {
                   return (
-                    <Tag key={`domaine-${domaine}-${Math.floor(Math.random() * 99999999)}`} color='geekblue'>
+                    <Tag key={`domaine-${domaine}-${index}-table`} color='geekblue'>
                       {domaine.toUpperCase()}
                     </Tag>
                   );
@@ -270,9 +357,9 @@ export default function BlogDetail(){
           dataIndex: 'skills',
           render: (_, { skills }) => (
             <>
-              {skills.map((skill) => {
+              {skills.map((skill, index) => {
                 return (
-                  <Tag key={`skill-${skill}-${Math.floor(Math.random() * 99999999)}`}>
+                  <Tag key={`skill-${skill}-${index}-table`}>
                     {skill.trim()}
                   </Tag>
                 );
@@ -287,16 +374,16 @@ export default function BlogDetail(){
             render: (_, { certifications, certificationsOnShore }) => (
               <>
                 
-                {certificationsOnShore && certificationsOnShore.map(({certification}) => {
+                {certificationsOnShore && certificationsOnShore.map(({certification, index}) => {
                   return (
-                    <Tag key={`certification-${certification}-${Math.floor(Math.random() * 99999999)}`} color='gold'>
+                    <Tag key={`certification-${certification}-${index}-table`} color='gold'>
                       {certification.trim()}
                     </Tag>
                   );
                 })}
-                {certifications && certifications.map(({certification}) => {
+                {certifications && certifications.map(({certification, index}) => {
                   return (
-                    <Tag key={`certification-${certification}-${Math.floor(Math.random() * 99999999)}`} color='gold'>
+                    <Tag key={`certification-${certification}-${index}-table2`} color='gold'>
                       {certification.trim()}
                     </Tag>
                   );
@@ -400,7 +487,15 @@ export default function BlogDetail(){
                     const certificationsFilter = certificationsInfo.result.map(domaine => ({label: domaine.title, value: domaine.title}));
                     setDomaines(domainesFilter);
                     setCertifications(certificationsFilter);
-                    setUser(rest)
+                    setUser(rest);
+                    setFormPersonalValues({
+                        fullName: rest.fullName,
+                        phoneNumber: rest.phoneNumber,
+                        email: rest.email,
+                        website: rest?.company?.website ?? '',
+                        industry: rest?.company?.industry ?? '',
+                        location: rest?.company?.location ?? '',
+                    })
                     setLoadedUser(true)
                     if(rest.role === RECRUITER) {
                         const allJobs = await JobOfferService.getMyJob()
@@ -594,13 +689,13 @@ export default function BlogDetail(){
             setStateCreateJob(true)
             try {
                 messageApi.loading("emploi en cours de création")
-                const newJob = await JobOfferService.createJob({...formValues, skills: otherCompetencesAdded.join(';')});
+                const newJob = await JobOfferService.createJob({...formValues, skills: otherCompetencesAdded.join(';'), contractType: formValues.contractType[0]});
                 if(newJob.etat) {
                     setFormValues({
                         title: '',
                         description: null,
                         location: '',
-                        contractType: null,
+                        contractType: [],
                         salaryRange: '',
                         onShore: false
                     
@@ -609,6 +704,54 @@ export default function BlogDetail(){
                     handleClearEditor()
                     await getUser()
                     messageApi.success("Demande emploi en cours de validation par l'administration")
+                } else {
+                    messageApi.warning("Une erreur s'est produite")
+                }
+                setStateCreateJob(false)
+            } catch (error) {
+                const {response} = error
+                setStateCreateJob(false)
+                
+                for (const errorMessage of response.data.message) {
+                    openNotificationWithIcon({type: 'error', message: 'Echec', description: errorMessage })
+                }
+            }
+        }
+    }
+
+    const handleUpdateJob = async (e) => {
+        e.preventDefault()
+        if(otherCompetencesAdded.length > 0 && !stateCreateJob) {
+            setStateCreateJob(true)
+            try {
+                messageApi.loading("emploi en cours de modification")
+                const newJob = await JobOfferService.updateJob({...formValues, skills: otherCompetencesAdded.join(';'), contractType: formValues.contractType[0], description: editorRef.current.getContent(), _id: selectJob._id});
+                if(newJob.etat) {
+                    setFormValues({
+                        title: '',
+                        description: null,
+                        location: '',
+                        contractType: [],
+                        salaryRange: '',
+                        onShore: false
+                    
+                    });
+                    setDomainesAdded([]);
+                    handleClearEditor();
+                    setTimeout(() => {
+                        setFormValues({
+                            title: '',
+                            description: null,
+                            location: '',
+                            contractType: [],
+                            salaryRange: '',
+                            onShore: false
+                        
+                        });
+                    }, timeout);
+                    await getUser()
+                    setIsEditJob(false);
+                    messageApi.success("Offre emploi modifiée")
                 } else {
                     messageApi.warning("Une erreur s'est produite")
                 }
@@ -753,10 +896,162 @@ export default function BlogDetail(){
         });
       };
 
+      const onChange = ({ fileList: newFileList }) => {
+              // Limiter à un seul fichier
+              const fileInfo = {
+                  logo: null,
+                  logoName: null
+              }
+              if (newFileList.length > 1) {
+                newFileList = newFileList.slice(-1);
+              }
+          
+              setFileList(newFileList);
+          
+              if (newFileList.length > 0) {
+                const file = newFileList[0];
+                const reader = new FileReader();
+      
+                fileInfo.logoName = file.name;
+          
+                reader.readAsDataURL(file.originFileObj); // Lecture du fichier en base64
+          
+                reader.onload = () => {
+                  fileInfo.logo = reader.result.split(',')[1]
+                  setFormValues({...formValues, ...fileInfo})
+                };
+              } else {
+                  setFormValues({...formValues, ...fileInfo})
+              }
+            };
+          
+            const onPreview = async (file) => {
+              let src = file.url;
+              if (!src) {
+                src = await new Promise((resolve) => {
+                  const reader = new FileReader();
+                  reader.readAsDataURL(file.originFileObj);
+                  reader.onload = () => resolve(reader.result);
+                });
+              }
+              const image = new Image();
+              image.src = src;
+              const imgWindow = window.open(src);
+              imgWindow?.document.write(image.outerHTML);
+            };
+
     return(
         <>
         {contextHolder}
         {contextMessageHolder}
+        {
+            loadedUser && user &&
+            <Modal
+                title="Modification du profil"
+                open={openModal}
+                onOk={handleSubmitPersonnalInfo}
+                onCancel={toogleModal}
+                okText="Modifier"
+                cancelText="Annuler"
+            >
+                <Flex gap={'middle'} align='center' vertical justify="center" style={{margin: 10}}>
+                                                <ImgCrop rotationSlider>
+                                                    <Upload
+                                                    listType="picture-card"
+                                                    fileList={fileList}
+                                                    onChange={onChange}
+                                                    onPreview={onPreview}
+                                                    beforeUpload={() => false} // Désactive l'upload automatique
+                                                    maxCount={1} // Limiter à un seul fichier
+                                                    >
+                                                    {fileList.length < 1 && `+ ${user.role === CANDIDATE ? 'Photo de profil': 'Logo'}`}
+                                                    </Upload>
+                                                </ImgCrop>
+                        </Flex>
+                        {
+                            user.role === CANDIDATE ?
+                            (
+                                <>
+                                <div className="form-floating mb-2 mt-2">
+                                                <input type="text" name="fullName" onChange={handleChange} value={formPersonalValues.fullName} className="form-control" id="floatingInput" placeholder="Harry"/>
+                                                <label htmlFor="floatingInput">Nom complet</label>
+                                            </div>
+
+                                            <div className="form-floating mb-2">
+                                                <input type="email" name="email" onChange={handleChange} value={formPersonalValues.email} className="form-control" id="floatingEmail" placeholder="name@example.com"/>
+                                                <label htmlFor="floatingEmail">Email</label>
+                                            </div>
+
+                                            <div className="form-floating mb-2">
+                                                <input type="tel" name="phoneNumber" onChange={handleChange} value={formPersonalValues.phoneNumber} className="form-control" id="floatingPhoneNumber" placeholder="0XXXXXXXXX"/>
+                                                <label htmlFor="floatingPhoneNumber">Numero de téléphone</label>
+                                            </div>
+                                </>
+                            )
+                            : (
+                                <>
+                                <div className="form-floating mb-2 mt-2">
+                                                                                <input type="text" name="fullName" onChange={handleChange} value={formPersonalValues.fullName} className="form-control" id="floatingInput" placeholder="Harry"/>
+                                                                                <label htmlFor="floatingInput">Nom de l'entreprise</label>
+                                                                            </div>
+                                                                            <div className="form-floating mb-2 mt-2">
+                                                                                <Select
+                                                                                    style={{
+                                                                                        width: '100%',
+                                                                                    }}
+                                                                                    value={formPersonalValues.industry}
+                                                                                    placeholder="Quel est votre domaine d'activité"
+                                                                                    onChange={(value) => { setFormValues({...formPersonalValues,industry: value })}}
+                                                                                    options={domaines}
+                                                                                />
+                                                                            </div>
+                                                                            
+                                                                            <div className="form-floating mb-2 mt-2">
+                                                                                <input type="text" name="website" onChange={handleChange} value={formPersonalValues.website} className="form-control" id="floatingInput" placeholder="Harry"/>
+                                                                                <label htmlFor="floatingInput">Site web de l'entreprise</label>
+                                                                            </div>
+                                                                            <div className="form-floating mb-2 mt-2">
+                                                                                <input type="text" name="location" onChange={handleChange} value={formPersonalValues.location} className="form-control" id="floatingInput" placeholder="Harry"/>
+                                                                                <label htmlFor="floatingInput">Situation géographique</label>
+                                                                            </div>
+                                
+                                                                            <div className="form-floating mb-2">
+                                                                                <input type="email" name="email" onChange={handleChange} value={formPersonalValues.email} className="form-control" id="floatingEmail" placeholder="name@example.com"/>
+                                                                                <label htmlFor="floatingEmail">Email</label>
+                                                                            </div>
+                                
+                                                                            <div className="form-floating mb-2">
+                                                                                <input type="tel" name="phoneNumber" onChange={handleChange} value={formPersonalValues.phoneNumber} className="form-control" id="floatingPhoneNumber" placeholder="0XXXXXXXXX"/>
+                                                                                <label htmlFor="floatingPhoneNumber">Numero de téléphone</label>
+                                                                            </div>
+                                </>
+                            )
+                        }
+            </Modal>
+        }
+        <Modal
+                title={`Supprimer l'offre ${selectJob.title ?? ''}`}
+                open={openModalDeleteJob}
+                onOk={handleDeleteJob}
+                onCancel={toogleModalDeleteJob}
+                okText="Oui, supprimez"
+                cancelText="Annuler"
+                okButtonProps={{
+                    color: 'danger',
+                  }}
+            >
+            {
+                selectJob.title && (
+                    <>
+                    <Typography variant="body2" sx={{m: 2}}>
+                        Toutes les candidatures qui ont été enregistré pour cette offres seront aussi supprimées et cette action est irréversible.
+                        <br />
+                        Voulez-vous vraiment lancer la suppression ?
+                        </Typography>
+                    </>
+                )
+            }
+            </Modal>
         <Navbar navClass="defaultscroll sticky" logolight={true} menuClass = "navigation-menu nav-left nav-light"/>
         <section className="bg-half-170 d-table w-100" style={{backgroundImage:"url('/images/bg/02.jpg')"}}>
             <div className="bg-overlay bg-gradient-overlay-2"></div>
@@ -771,7 +1066,16 @@ export default function BlogDetail(){
                             size={{ xs: 94, sm: 102, md: 110, lg: 124, xl: 130, xxl: 150 }}
                             src={`${baseUrlAssetLogos}/${user.profil}`}
                             />
-                            <h5 className="heading fw-semibold mb-0 sub-heading text-white title-dark mt-1">{user.fullName}</h5>
+                            <h5 className="heading fw-semibold mb-0 sub-heading text-white title-dark mt-1">
+                                {user.fullName}
+                                {' '}
+                                <Tooltip title="Modifier profil">
+                                    <Button onClick={(e) => {
+                                        e.preventDefault();
+                                        toogleModal();
+                                    }}  type="primary" shape="circle" icon={<EditOutlined />} />
+                                </Tooltip>
+                            </h5>
                             <span className="badge bg-primary">{user.role === CANDIDATE ? 'Profil Candidat': 'Compte Entreprise'}</span>
                             <br />
                             </>
@@ -879,7 +1183,7 @@ export default function BlogDetail(){
                                                     <h6 className="pb-1 bg-light rounded-3">Domaines d'activités</h6>
                                                     <ul className="tagcloud list-unstyled mt-1">
                                                         
-                                                        {user && user.domainsActivity.length > 0 && user.domainsActivity.map((domaine, index) => <li key={`domaine-${index}_${Math.floor(Math.random() * 99999999)}`} className="list-inline-item m-1"><Link href="#" className="rounded-3 fw-medium text-dark inline-block py-2 px-3">{domaine}</Link></li>)}
+                                                        {user && user.domainsActivity.length > 0 && user.domainsActivity.map((domaine, index) => <li key={`domaine-${index}_${domaine}-domainsActivity`} className="list-inline-item m-1"><Link href="#" className="rounded-3 fw-medium text-dark inline-block py-2 px-3">{domaine}</Link></li>)}
 
 
                                                     </ul>
@@ -912,7 +1216,7 @@ export default function BlogDetail(){
                                                     <h6 className="pb-1 bg-light rounded-3">Palettes de compétences</h6>
                                                     <ul className="tagcloud list-unstyled mt-1">
                                                         
-                                                        {user && user.skills.length > 0 && user.skills.map((skill, index) => <li key={`skill-${index}_${Math.floor(Math.random() * 99999999)}`} className="list-inline-item m-1"><Link href="#" className="rounded-3 fw-medium text-dark inline-block py-2 px-3">{skill}</Link></li>)}
+                                                        {user && user.skills.length > 0 && user.skills.map((skill, index) => <li key={`skill-${index}_${skill}-palette`} className="list-inline-item m-1"><Link href="#" className="rounded-3 fw-medium text-dark inline-block py-2 px-3">{skill}</Link></li>)}
 
 
                                                     </ul>
@@ -968,7 +1272,7 @@ export default function BlogDetail(){
                                                     <h6 className="pb-1 bg-light rounded-3">Diplôme et certifications</h6>
                                                     <ul className="tagcloud list-unstyled mt-1">
                                                         
-                                                        {user && user.certifications.length > 0 && user.certifications.map(({certification}, index) => <li key={`certification-${index}_${Math.floor(Math.random() * 99999999)}`} className="list-inline-item m-1"><Link href="#" className="rounded-3 fw-medium text-dark inline-block py-2 px-3">{certification}</Link></li>)}
+                                                        {user && user.certifications.length > 0 && user.certifications.map(({certification}, index) => <li key={`certification-${index}_${certification}-diplome`} className="list-inline-item m-1"><Link href="#" className="rounded-3 fw-medium text-dark inline-block py-2 px-3">{certification}</Link></li>)}
 
 
                                                     </ul>
@@ -1021,7 +1325,7 @@ export default function BlogDetail(){
                                                             <h6 className="pb-1 bg-light rounded-3">Certifications</h6>
                                                             <ul className="tagcloud list-unstyled mt-1">
                                                                 
-                                                            {user && user.certificationsOnShore.length > 0 && user.certificationsOnShore.map(({certification}, index) => <li key={`certificationOnShore-${index}_${Math.floor(Math.random() * 99999999)}`} className="list-inline-item m-1"><Link href="#" className="rounded-3 fw-medium text-dark inline-block py-2 px-3">{certification}</Link></li>)}
+                                                            {user && user.certificationsOnShore.length > 0 && user.certificationsOnShore.map(({certification}, index) => <li key={`certificationOnShore-${index}_${certification}`} className="list-inline-item m-1"><Link href="#" className="rounded-3 fw-medium text-dark inline-block py-2 px-3">{certification}</Link></li>)}
 
 
                                                             </ul>
@@ -1100,7 +1404,7 @@ export default function BlogDetail(){
                                                 <div className="text-center">
                                                     <h6 className="pb-1 bg-light rounded-3">Expériences professionnelles</h6>
                                                     {user && user.experiences.length > 0 ? user.experiences.map((experience, index) => (
-                                                        <Accordion sx={{mb: 2}}>
+                                                        <Accordion key={`accordion_${experience.position}_${index}`} sx={{mb: 2}}>
                                                             <AccordionSummary
                                                                 expandIcon={<ExpandMoreIcon />}
                                                                 aria-controls={`panel3-content-experience-${index}`}
@@ -1209,7 +1513,7 @@ export default function BlogDetail(){
                                                 <div className="text-center">
                                                     <h6 className="pb-1 bg-light rounded-3">Langues</h6>
                                                     {user && user.languages.length > 0 ? user.languages.map((language, index) => (
-                                                        <Accordion sx={{mb: 2}}>
+                                                        <Accordion key={`accordion_${language.title}_${index}`} sx={{mb: 2}}>
                                                             <AccordionSummary
                                                                 expandIcon={<ExpandMoreIcon />}
                                                                 aria-controls={`panel3-content-${index}`}
@@ -1370,7 +1674,7 @@ export default function BlogDetail(){
                                             <div className="row">
                                             {user?.candidatures?.map((candidature)=>{
                                                 return(
-                                                    <div key={`candidature_${Math.floor(Math.random() * 99999999)}`} className="col-lg-6 col-md-6 col-12">
+                                                    <div key={`candidature_${candidature._id}_recent`} className="col-lg-6 col-md-6 col-12">
                                                         <Link href={`/job/${candidature.jobOffer._id}`}>
                                                         <div className="blog blog-primary d-flex align-items-center mt-3">
                                                             <Image src={`${baseUrlAssetLogos}/${candidature.jobOffer.cover}`} width={105} height={65} className="avatar avatar-small rounded-3" style={{width: "auto"}} alt={candidature.jobOffer.title}/>
@@ -1423,7 +1727,7 @@ export default function BlogDetail(){
                                     
 
                                     <div className="card-body">
-                                        <div className="container">
+                                        <div className="container" ref={targetRef} id="target">
                                             <div className="row">
                                                 <div className="col-md-12 col-12">
                                                     <div className="form-floating mb-2 mt-2">
@@ -1467,7 +1771,7 @@ export default function BlogDetail(){
                                                             }}
                                                             value={formValues.contractType}
                                                             placeholder="Sélectionner le type de contrat"
-                                                            onChange={(value) => {setFormValues({...formValues, contractType: value})}}
+                                                            onChange={(value) => {setFormValues({...formValues, contractType: [value]})}}
                                                             options={contractType}
                                                         />
                                                     </div>
@@ -1491,15 +1795,41 @@ export default function BlogDetail(){
 
                                                 <div className="col-md-12 col-12 mt-3 mb-3">
                                                     
-                                                    <Flex align="center" justify="center">
-                                                    <button className={"btn w-100 " + (stateCreateJob ? 'btn-light' : 'btn-primary')} type="button" onClick={handleSumbitJob}> {stateCreateJob ? <Spin /> : 'Enregistrer'}</button>
-                                                    </Flex>
+                                                    <Flex align="center" justify="center" gap={10}>
+                                                        
+                                                        {
+                                                            isEditJob ? (
+                                                                <>
+                                                                <button className={"btn w-100 btn-light"} type="button" onClick={(e)=> {
+                                                                    e.preventDefault();
+                                                                    setFormValues({
+                                                                        title: '',
+                                                                        description: null,
+                                                                        location: '',
+                                                                        contractType: [],
+                                                                        salaryRange: '',
+                                                                        onShore: false
+                                                                    
+                                                                    });
+                                                                    setDomainesAdded([])
+                                                                    handleClearEditor()
+                                                                    setIsEditJob(false);
+                                                                }}>Annuler</button>
+                                                                {' '}
+                                                                <button className={"btn w-100 " + (stateCreateJob ? 'btn-light' : 'btn-primary')} type="button" onClick={handleUpdateJob}> {stateCreateJob ? <Spin /> : 'Modifier'}</button>
+                                                                </>
+                                                            ):
+                                                            (
+                                                                <button className={"btn w-100 " + (stateCreateJob ? 'btn-light' : 'btn-primary')} type="button" onClick={handleSumbitJob}> {stateCreateJob ? <Spin /> : 'Enregistrer'}</button>
+                                                            )
+                                                        }
+                                                                                                        </Flex>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
-                                    <div className="card border-0 shadow rounded-3 overflow-hidden">
+                                    <div className="card border-0 shadow rounded-3 overflow-hidden mt-5">
                                         <div className="card-title">
                                             <Typography variant="h3" className="text-center title fs-5 text-dark fw-medium" sx={{m: 2}}>
                                                 Toutes mes offres crées
@@ -1508,47 +1838,93 @@ export default function BlogDetail(){
                                         <div className="card-body">
                                             {
                                                 jobs.map(job => (
-                                                    <Box key={`job_${job._id}_${Math.floor(Math.random() * 99999999)}`} component={'div'} sx={{mt: 2}}>
-                                                        <Link href={job.isActive ? `/job/${job._id}`: '#'}>
-                                    
-                                                            <Badge.Ribbon text={job.isActive ? 'En ligne': 'En attente validation'} color={job.isActive ? 'green': 'red'}>
-                                                                <div className="card property property-list border-0 shadow position-relative overflow-hidden rounded-3">
-                                                                    <div className="d-md-flex">
-                                                                        <div className="property-image position-relative overflow-hidden shadow flex-md-shrink-0 rounded-3 m-2">
-                                                                            <Image src={`${baseUrlAssetLogos}/${job.cover}`} width={0} height={0} sizes="100vw" style={{width:'100%', height:'auto'}} className="img-fluid h-100 w-100" alt="illustration job"/>
-                                                                            
-                                                                        </div>
-                                                                        <div className="card-body content p-3">
-                                                                            {/* <Link href={`/property-detail/${item.id}`} className="title fs-5 text-dark fw-medium">{item.title}</Link> */}
-                                                                            <h3 className="title fs-5 text-dark fw-medium">{job.title}</h3>
+                                                    <Box key={`job_${job._id}_offers`} component={'div'} sx={{mt: 2}}>
+                                                        <Grid container spacing={2}>
+                                                            <Grid size={{xs: 12, sm: 8, md:9, lg: 9}}>
+                                                                <Link href={job.isActive ? `/job/${job._id}`: '#'}>
+                                        
+                                                                    <Badge.Ribbon text={job.isActive ? 'En ligne': 'En attente validation'} color={job.isActive ? 'green': 'red'}>
+                                                                        <div className="card property property-list border-0 shadow position-relative overflow-hidden rounded-3">
+                                                                            <div className="d-md-flex">
+                                                                                <div className="property-image position-relative overflow-hidden shadow flex-md-shrink-0 rounded-3 m-2">
+                                                                                    <Image src={`${baseUrlAssetLogos}/${job.cover}`} width={0} height={0} sizes="100vw" style={{width:'100%', height:'auto'}} className="img-fluid h-100 w-100" alt="illustration job"/>
+                                                                                    
+                                                                                </div>
+                                                                                <div className="card-body content p-3">
+                                                                                    {/* <Link href={`/property-detail/${item.id}`} className="title fs-5 text-dark fw-medium">{item.title}</Link> */}
+                                                                                    <h3 className="title fs-5 text-dark fw-medium">
+                                                                                        {job.title}                                                                                        
+                                                                                        </h3>
 
-                                                                            <ul className="list-unstyled mt-3 py-3 border-top border-bottom d-flex align-items-center justify-content-between">
-                                                                                <li className="d-flex align-items-center me-3">
-                                                                                    <i className="mdi mdi-tag-multiple fs-5 me-2 text-primary"></i>
-                                                                                    <span className="text-muted">{job.contractType}</span>
-                                                                                </li>
-                                                                                <li className="d-flex align-items-center">
-                                                                                    <i className="mdi mdi-table-account fs-5 me-2 text-primary"></i>
-                                                                                    <span className="text-muted">{job.location}</span>
-                                                                                </li>
-                                                                            </ul>
-                                                                            <ul className="list-unstyled d-flex justify-content-between mt-2 mb-0">
-                                                                                <li className="list-inline-item mb-0">
-                                                                                    <span className="text-muted">Prétention salaire</span>
-                                                                                    <p className="fw-medium mb-0">{job.salaryRange} Frs</p>
-                                                                                </li>
-                                                                                <li className="list-inline-item mb-0 text-muted">
-                                                                                    <p className="text-muted text-end m-0">Publié depuis</p>
-                                                                                    <ul className="fw-medium text-warning list-unstyled mb-0">
-                                                                                        {horodatage(new Date(job.postedAt)) }
+                                                                                    <ul className="list-unstyled mt-3 py-3 border-top border-bottom d-flex align-items-center justify-content-between">
+                                                                                        <li className="d-flex align-items-center me-3">
+                                                                                            <i className="mdi mdi-tag-multiple fs-5 me-2 text-primary"></i>
+                                                                                            <span className="text-muted">{job.contractType}</span>
+                                                                                        </li>
+                                                                                        <li className="d-flex align-items-center">
+                                                                                            <i className="mdi mdi-table-account fs-5 me-2 text-primary"></i>
+                                                                                            <span className="text-muted">{job.location}</span>
+                                                                                        </li>
                                                                                     </ul>
-                                                                                </li>
-                                                                            </ul>
+                                                                                    <ul className="list-unstyled d-flex justify-content-between mt-2 mb-0">
+                                                                                        <li className="list-inline-item mb-0">
+                                                                                            <span className="text-muted">Prétention salaire</span>
+                                                                                            <p className="fw-medium mb-0">{job.salaryRange} Frs</p>
+                                                                                        </li>
+                                                                                        <li className="list-inline-item mb-0 text-muted">
+                                                                                            <p className="text-muted text-end m-0">Publié depuis</p>
+                                                                                            <ul className="fw-medium text-warning list-unstyled mb-0">
+                                                                                                {horodatage(new Date(job.postedAt)) }
+                                                                                            </ul>
+                                                                                        </li>
+                                                                                    </ul>
+                                                                                </div>
+                                                                            </div>
                                                                         </div>
-                                                                    </div>
-                                                                </div>
-                                                            </Badge.Ribbon>
-                                                        </Link>
+                                                                    </Badge.Ribbon>
+                                                                </Link>
+                                                            </Grid>
+                                                            <Grid size={{xs:12, sm:4, md:3, lg:3}}>
+                                                                <Flex gap='middle' vertical align="center" justify="center">
+                                                                <Tooltip title="Modifier cette annonce">
+                                                                                            <Button onClick={(e) => {
+                                                                                                setFormValues({
+                                                                                                    location: job.location,
+                                                                                                    title: job.title,
+                                                                                                    onShore: job.onShore,
+                                                                                                    contractType: [job.contractType],
+                                                                                                    salaryRange: job.salaryRange.toString(),
+                                                                                                    
+                                                                                                });
+                                                                                                setOtherCompetencesAdded(job.skills);
+                                                                                                editorRef.current.setContent(job.description);
+                                                                                                setIsEditJob(true);
+                                                                                                scrollToTarget();
+                                                                                                setSelectJob(job);
+                                                                                                setTimeout(() => {
+                                                                                                    setFormValues({
+                                                                                                        location: job.location,
+                                                                                                        title: job.title,
+                                                                                                        onShore: job.onShore,
+                                                                                                        contractType: [job.contractType],
+                                                                                                        salaryRange: job.salaryRange.toString(),
+                                                                                                        
+                                                                                                    });
+                                                                                                }, 1200);
+                                                                                            }}  type="primary" color="danger" shape="circle" icon={<EditOutlined />} />
+                                                                                        </Tooltip>
+                                                                                        {' '}
+                                                                                        <Tooltip title="Supprimer cette annonce">
+                                                                                            <Button onClick={(e) => {
+                                                                                                setSelectJob(job);
+                                                                                                toogleModalDeleteJob();
+                                                                                            }}  type='dashed' variant="filled" color='danger' icon={<DeleteOutlined />} >
+                                                                                                Supprimer
+                                                                                            </Button>
+                                                                                        </Tooltip>
+                                                                </Flex>
+                                                            </Grid>
+                                                        </Grid>
 
                                                         {
                                                             job.isActive && (
@@ -1563,7 +1939,7 @@ export default function BlogDetail(){
                                                                 </Box>
                                                             )
                                                         }
-                                                    </Box>
+                                                    </Box> 
                                                 ))
                                             }
                                         </div>
