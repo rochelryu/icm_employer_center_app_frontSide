@@ -51,8 +51,8 @@ export default function IndexSix(){
                         <div className="row">
                             <div className="col-12">
                                 <div className="title-heading">
-                                    <h4 className="heading fw-bold text-white title-dark mb-3">Votre plateforme de recherche d&apos;emploi</h4>
-                                    <p className="para-desc text-white title-dark mb-0">Une plateforme idéale pour chercher du boulot.</p>
+                                    <h4 className="heading fw-bold text-white title-dark mb-3">Votre plateforme d'emploi et de recrutement</h4>
+                                    <p className="para-desc text-white title-dark mb-0">Des horizons professionnels, de la mer à la terre</p>
                                 
                                     <div className="subscribe-form mt-4">
                                         <form className="me-auto" onSubmit={(e) => {
@@ -60,7 +60,7 @@ export default function IndexSix(){
                                             router.push(`/joblist?search=${search}`)
                                         }}>
                                             <div className="mb-0">
-                                                <input type="text" id="help" name="name" value={search} onChange={(e) => {setSearch(e.target.value)}} className="shadow rounded-3 bg-white" required="" placeholder="Jardinier, chauffeur, developpeur, etc..."/>
+                                                <input type="text" id="help" name="name" value={search} onChange={(e) => {setSearch(e.target.value)}} className="shadow rounded-3 bg-white" required="" placeholder="secrétaire bilingue, Coordinateur logistique, Floorman, crane operator, etc…"/>
                                                 <button type="submit" className="btn btn-primary rounded-3">Rechercher</button>
                                             </div>
                                         </form>
@@ -102,10 +102,8 @@ export default function IndexSix(){
                         <div className="col-lg-7 col-md-7 mt-4 mt-sm-0 pt-2 pt-sm-0">
                             <div className="section-title ms-lg-5">
                                 <h6 className="text-primary fw-medium mb-2">Les meilleurs programmes & formations</h6>
-                                <h4 className="title mb-3">Venez apprendre avec nos professionnel du metier,<br/> monter rapidement en expérience</h4>
+                                <h4 className="title mb-3">Apprenez aux côtés de nos experts et<br/> développez rapidement vos compétences</h4>
                                 <p className="text-muted para-desc mb-0">+400 formations</p>
-                            
-                                
                             </div>
                         </div>
                     </div>

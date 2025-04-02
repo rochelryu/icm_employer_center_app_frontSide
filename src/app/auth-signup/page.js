@@ -168,7 +168,7 @@ export default function Signup(){
                         <div className="p-4 bg-white rounded-3 shadow-md mx-auto w-100" style={{maxWidth:'400px'}}>
                             <form onSubmit={handleSubmit}>
                                 <h5 className="mb-3">Enregistrez votre compte</h5>
-                                <Segmented options={['Particulier','Entreprise']} block onChange={(value) => {setParticular(value === 'Particulier')}} />
+                                <Segmented options={['Candidat','Entreprise']} block onChange={(value) => {setParticular(value === 'Candidat')}} />
                                     {
                                         isParticular ?
                                         (

@@ -18,7 +18,7 @@ export default function ContactUs(){
                     <div className="col-12">
                         <div className="title-heading text-center">
                             <p className="text-white-50 para-desc mx-auto mb-0">Par ici !</p>
-                            <h5 className="heading fw-semibold mb-0 sub-heading text-white title-dark">Nous vous écoutons</h5>
+                            <h5 className="heading fw-semibold mb-0 sub-heading text-white title-dark">Nous restons attentifs à vos besoins</h5>
                         </div>
                     </div>
                 </div>
@@ -118,7 +118,7 @@ export default function ContactUs(){
                             <div className="mt-4">
                                 <h5 className="mb-3">Email</h5>
                                 <p className="text-muted">Disponible du lundi au vendredi de 09h à 17H</p>
-                                <Link href="mailto:employmentcenter@holding.com" className="text-primary">employmentcenter@holding.com</Link>
+                                <Link href="mailto:employmentcenter@icmholding.com" className="text-primary">employmentcenter@icmholding.com</Link>
                             </div>
                         </div>
                     </div>
@@ -134,7 +134,7 @@ export default function ContactUs(){
     
                             <div className="mt-4">
                                 <h5 className="mb-3">Localisation</h5>
-                                <p className="text-muted">Vridi Zone portuaire, <br/> Rue de la métalurgie, 1125</p>
+                                <p className="text-muted">348C, Rue des pétroliers, <br/> zone industrielle de Vridi</p>
                                 <Link href="https://maps.app.goo.gl/X1wnxmmseucJvV8D6" target='_blank' className="lightbox text-primary" >Voir sur Google map</Link>
                             </div>
                         </div>

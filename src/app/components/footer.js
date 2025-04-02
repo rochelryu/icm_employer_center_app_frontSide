@@ -18,10 +18,10 @@ export default function Footer(){
                                     <Link href="#" className="logo-footer">
                                         <Image src='/images/logo-light.png' width={69} height={70} alt=""/>
                                     </Link>
-                                    <p className="mt-4">Une plateforme idéale pour chercher du boulot.</p>
+                                    <p className="mt-4">Des horizons professionnels, de la mer à la terre.</p>
                                     <ul className="list-unstyled social-icon foot-social-icon mb-0 mt-4">
                                         <li className="list-inline-item"><Link href="#" target="_blank" className="rounded-3"><FiLinkedin className="fea icon-sm align-middle"/></Link></li>
-                                        <li className="list-inline-item"><Link href="mailto:employmentcenter@holding.com" className="rounded-3"><FiMail className="fea icon-sm align-middle"/></Link></li>
+                                        <li className="list-inline-item"><Link href="mailto:employmentcenter@icmholding.com" className="rounded-3"><FiMail className="fea icon-sm align-middle"/></Link></li>
                                     </ul>
                                 </div>
                                 
@@ -38,19 +38,19 @@ export default function Footer(){
                                 </div> */}
             
                                 <div className="col-lg-3 col-md-4 col-12 mt-4 mt-sm-0 pt-2 pt-sm-0">
-                                    <h5 className="footer-head">Contact Detail</h5>
+                                    <h5 className="footer-head">coordonnées</h5>
 
                                     <div className="d-flex mt-4">
                                         <FiMapPin className="fea icon-sm text-primary mt-1 me-3"/>
                                         <div className="">
-                                            <p className="mb-2">Vridi Zone portuaire, <br/> Rue de la métalurgie, 1125</p>
+                                            <p className="mb-2">348C, Rue des pétroliers, <br/> zone industrielle de Vridi</p>
                                             <Link target='_blank' href="https://maps.app.goo.gl/X1wnxmmseucJvV8D6" className="text-primary lightbox">Voir sur Google map</Link>
                                         </div>
                                     </div>
         
                                     <div className="d-flex mt-4">
                                         <FiMail className="fea icon-sm text-primary mt-1 me-3"/>
-                                        <Link href="mailto:employmentcenter@holding.com" className="text-foot">employmentcenter@holding.com</Link>
+                                        <Link href="mailto:employmentcenter@icmholding.com" className="text-foot">employmentcenter@icmholding.com</Link>
                                     </div>
                                     
                                     <div className="d-flex mt-4">

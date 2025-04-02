@@ -11,8 +11,7 @@ export default function PropertyTwo({jobs}){
             <div className="row justify-content-center">
                 <div className="col">
                     <div className="section-title text-center mb-4 pb-2">
-                        <h4 className="title mb-3">Offres tendance</h4>
-                        <p className="text-muted para-desc mb-0 mx-auto">Retrouvé les meilleurs offres du moments qui font accrocher plus de 100 candidatures !!!</p>
+                        <h4 className="title mb-3">OFFRES D’EMPLOI</h4>
                     </div>
                 </div>
             </div>

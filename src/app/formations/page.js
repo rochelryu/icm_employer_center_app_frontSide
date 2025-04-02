@@ -50,7 +50,7 @@ export default function GridSidebar(){
                 <div className="row mt-5 justify-content-center">
                     <div className="col-12">
                         <div className="title-heading text-center">
-                            <p className="text-white-50 para-desc mx-auto mb-0">Adapté à tous les bésoins</p>
+                            <p className="text-white-50 para-desc mx-auto mb-0">Des formations de qualité adaptée à tous les besoins</p>
                             <h5 className="heading fw-semibold mb-0 sub-heading text-white title-dark">Formations de qualité</h5>
                         </div>
                     </div>
@@ -70,7 +70,7 @@ export default function GridSidebar(){
                     <div className="col-lg-4 col-md-6 col-12">
                         <div className="card bg-white p-4 rounded-3 shadow sticky-bar">
                             <div>
-                                <h6 className="mb-0">Rechercher formations</h6>
+                                <h6 className="mb-0">Rechercher une formations</h6>
 
                                 <div className="search-bar mt-2">
                                     <div id="itemSearch2" className="menu-search mb-0">
